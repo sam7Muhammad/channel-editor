@@ -136,8 +136,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
         </div>
 
-        {/* ── Chevron 1 ── */}
-        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D]">
+        {/* ── Chevron ── */}
+        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] p-1.5 m-1.5">
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
@@ -238,7 +238,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* ── Chevron 2 ── */}
-        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D]">
+        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] p-1.5 m-1.5">
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
