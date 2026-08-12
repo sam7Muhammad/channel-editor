@@ -139,11 +139,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         {/* ── Step 2: Main In this app (Spacious Dropzone) ── */}
         <div className="step-card main flex flex-col justify-start space-y-7">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div>
               <span className="badge-app text-xs font-semibold px-3 py-1">
                 {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
               </span>
-              <span className="text-xs font-mono text-[#4C82FB] font-semibold">T5300 & Tizen</span>
             </div>
 
             <div className="flex items-center gap-3 pt-1">
@@ -153,13 +152,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               </span>
             </div>
 
-            {/* Spacious Dropzone with generous 4-way padding */}
+            {/* Spacious Dropzone with generous top and bottom breathing room */}
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`clean-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-12 my-2 space-y-4 cursor-pointer transition-all ${
+              className={`clean-dropzone flex flex-col items-center justify-center text-center p-9 sm:p-14 mt-6 mb-2 space-y-4 cursor-pointer transition-all ${
                 isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
               }`}
             >
@@ -186,7 +185,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               
               <button
                 type="button"
-                className="clean-browse-btn px-6 py-2.5 text-sm font-semibold rounded-xl mt-2 hover:bg-[#1B212B] transition-all"
+                className="clean-browse-btn px-7 py-3 text-sm font-semibold rounded-xl mt-3 hover:bg-[#1B212B] transition-all"
                 disabled={isLoading}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -200,8 +199,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </div>
           </div>
 
-          {/* Auto-clean toggle & sample link */}
-          <div className="border-t border-[#232933] pt-5 space-y-4">
+          {/* Auto-clean toggle with ample space above & below */}
+          <div className="border-t border-[#232933] pt-7 pb-2">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-[#BAC4D6] font-medium">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
@@ -216,18 +215,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                 <span className="track"></span>
                 <span className="thumb"></span>
               </label>
-            </div>
-
-            <div className="text-center pt-1">
-              <button
-                type="button"
-                onClick={handleLoadSample}
-                disabled={isLoading}
-                className="text-xs sm:text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'أو جرّب بقائمة تجريبية جاهزة (2,109 قناة)' : 'Or test with a sample channel list (2,109 channels)'}</span>
-              </button>
             </div>
           </div>
         </div>
