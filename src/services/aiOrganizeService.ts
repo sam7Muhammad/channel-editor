@@ -89,7 +89,7 @@ Return strictly valid JSON matching:
 
     onProgress?.('AI analyzing channel preferences...', 65);
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey.trim()}`;
 
     const response = await fetch(endpoint, {
       method: 'POST',
