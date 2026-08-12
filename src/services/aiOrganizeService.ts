@@ -200,7 +200,7 @@ Return strictly valid JSON matching:
       for (const ch of validChannels) {
         const normName = ch.srvName
           .toLowerCase()
-          .replace(/\s+/g, '')
+          .replace(/[^a-z0-9]/gi, '') // Strip all spaces, dashes, punctuation
           .replace(/hd|sd|fhd|4k/gi, '');
         if (!nameMap.has(normName)) {
           nameMap.set(normName, []);
