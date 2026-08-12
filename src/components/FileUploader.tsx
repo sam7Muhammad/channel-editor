@@ -137,28 +137,28 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* ── Step 2: Main In this app (Spacious Dropzone) ── */}
-        <div className="step-card main flex flex-col justify-start space-y-7">
-          <div className="space-y-4">
+        <div className="step-card main flex flex-col justify-between">
+          <div>
             <div>
-              <span className="badge-app text-xs font-semibold px-3 py-1">
+              <span className="badge-app text-xs font-semibold px-3 py-1 mb-4">
                 {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
               </span>
             </div>
 
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center gap-3 pt-2 mb-6">
               <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
               <span className="font-semibold text-xl text-[#F1F4F8]">
                 {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
               </span>
             </div>
 
-            {/* Spacious Dropzone with generous top and bottom breathing room */}
+            {/* Spacious Dropzone filling the center */}
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`clean-dropzone flex flex-col items-center justify-center text-center p-9 sm:p-14 mt-6 mb-2 space-y-4 cursor-pointer transition-all ${
+              className={`clean-dropzone space-y-4 my-4 cursor-pointer transition-all ${
                 isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
               }`}
             >
@@ -185,7 +185,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               
               <button
                 type="button"
-                className="clean-browse-btn px-7 py-3 text-sm font-semibold rounded-xl mt-3 hover:bg-[#1B212B] transition-all"
+                className="clean-browse-btn mt-2"
                 disabled={isLoading}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -199,8 +199,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </div>
           </div>
 
-          {/* Auto-clean toggle with ample space above & below */}
-          <div className="border-t border-[#232933] pt-7 pb-2">
+          {/* Auto-clean toggle cleanly anchored to bottom */}
+          <div className="border-t border-[#232933] pt-6 mt-6 pb-1">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-[#BAC4D6] font-medium">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
