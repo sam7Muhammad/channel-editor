@@ -152,13 +152,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </div>
           </div>
 
-          {/* Dropzone — fixed natural size, does NOT stretch */}
+          {/* Dropzone — with margin top and bottom for breathing room */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`clean-dropzone cursor-pointer transition-all ${
+            className={`clean-dropzone my-8 cursor-pointer transition-all ${
               isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
             }`}
           >
@@ -198,8 +198,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </button>
           </div>
 
-          {/* Auto-clean toggle — sits below dropzone with balanced spacing */}
-          <div className="border-t border-[#232933] mt-8 pt-5">
+          {/* Auto-clean toggle */}
+          <div className="border-t border-[#232933] pt-5">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-[#BAC4D6] font-medium">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
