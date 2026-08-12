@@ -98,17 +98,15 @@ body[dir="rtl"] {
 /* Steps Row & Cards Grid */
 .steps-row {
   display: grid;
-  grid-template-columns: minmax(0,1fr) minmax(28px,56px) minmax(0,1.7fr) minmax(28px,56px) minmax(0,1fr);
+  grid-template-columns: minmax(0,1.05fr) minmax(20px,40px) minmax(0,1.6fr) minmax(20px,40px) minmax(0,1.05fr);
   align-items: stretch;
   width: 100%;
-  min-height: 460px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .steps-row {
     grid-template-columns: 1fr;
     gap: 20px;
-    min-height: auto;
   }
 }
 

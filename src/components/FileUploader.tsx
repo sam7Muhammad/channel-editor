@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { UploadCloud, ChevronRight, Route, ShieldCheck, Sparkles } from 'lucide-react';
+import { UploadCloud, ChevronRight, Route, ShieldCheck, Sparkles, Tv, ArrowRight } from 'lucide-react';
 import { translations } from '../utils/i18n';
 
 interface FileUploaderProps {
@@ -60,16 +60,16 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     >
       
       {/* ── Page Heading ── */}
-      <div className="mb-10">
+      <div className="mb-8">
         <h1
-          className="font-semibold text-white mb-3 tracking-tight"
-          style={{ fontSize: 'clamp(26px, 2.8vw, 36px)', lineHeight: 1.2 }}
+          className="font-bold text-white mb-2.5 tracking-tight"
+          style={{ fontSize: 'clamp(26px, 2.8vw, 34px)', lineHeight: 1.2 }}
         >
           {language === 'ar' ? 'رتّب ونظّف قائمة قنواتك' : 'Clean up your channel list'}
         </h1>
         <p
           className="leading-relaxed max-w-3xl"
-          style={{ fontSize: 'clamp(14px, 1.2vw, 17px)', color: '#8D96A8' }}
+          style={{ fontSize: 'clamp(14px, 1.2vw, 16px)', color: '#8D96A8' }}
         >
           {language === 'ar'
             ? 'انقل قائمة القنوات من شاشتك عبر الفلاشة، رتّب واحذف الترددات المكررة، ثم أعدها للشاشة.'
@@ -81,71 +81,85 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       <div className="steps-row items-stretch">
 
         {/* ── Step 1: On your TV ── */}
-        <div className="step-card justify-between p-6 sm:p-8">
-          <div>
-            <span className="badge-tv text-xs font-semibold px-3 py-1 mb-5">
+        <div className="step-card p-6 sm:p-7 flex flex-col justify-between space-y-6">
+          <div className="space-y-3">
+            <span className="badge-tv text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
-            <div className="flex items-center gap-3 mb-2.5">
+            <div className="flex items-center gap-2.5">
               <span className="step-num w-7 h-7 text-xs font-bold">1</span>
-              <span className="font-semibold text-base sm:text-lg text-[#F1F4F8]">
+              <span className="font-semibold text-lg text-[#F1F4F8]">
                 {language === 'ar' ? 'تصدير القائمة' : 'Export list'}
               </span>
             </div>
 
-            <p className="text-sm text-[#8D96A8] leading-relaxed mb-6">
-              {language === 'ar' ? 'احفظ القائمة على الفلاشة من إعدادات الشاشة.' : 'Save it to USB from your TV settings.'}
+            <p className="text-sm text-[#8D96A8] leading-relaxed">
+              {language === 'ar'
+                ? 'احفظ القائمة على الفلاشة من إعدادات البث في التلفزيون.'
+                : 'Plug in a USB drive and export your channel list from TV settings.'}
             </p>
           </div>
 
-          <div className="border-t border-[#232933] pt-4 mt-auto">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#8D96A8] mb-3">
+          {/* Clean Step-by-Step Path */}
+          <div className="border-t border-[#232933] pt-4 space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#8D96A8]">
               <Route className="w-4 h-4 text-cyan-400" />
-              <span>{language === 'ar' ? 'مسار القائمة في الشاشة' : 'Menu path on TV'}</span>
+              <span>{language === 'ar' ? 'مسار القائمة في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs leading-relaxed text-[#5B6472]">
-              <span className="px-2 py-1 rounded bg-[#171D26] text-[#BAC4D6] font-medium whitespace-nowrap">{language === 'ar' ? 'الإعدادات' : 'Settings'}</span>
-              <span className="text-[#3A414D]">›</span>
-              <span className="px-2 py-1 rounded bg-[#171D26] text-[#BAC4D6] font-medium whitespace-nowrap">{language === 'ar' ? 'البث' : 'Broadcasting'}</span>
-              <span className="text-[#3A414D]">›</span>
-              <span className="px-2 py-1 rounded bg-[#171D26] text-[#BAC4D6] font-medium whitespace-nowrap">{language === 'ar' ? 'إعدادات الخبراء' : 'Expert settings'}</span>
-              <span className="text-[#3A414D]">›</span>
-              <span className="px-2 py-1 rounded bg-[#171D26] text-[#BAC4D6] font-medium whitespace-nowrap">{language === 'ar' ? 'نقل القنوات' : 'Transfer channel list'}</span>
-              <span className="text-[#3A414D]">›</span>
-              <span className="px-2 py-1 rounded bg-[#171D26] text-cyan-300 font-semibold whitespace-nowrap">{language === 'ar' ? 'تصدير إلى USB' : 'Export to USB'}</span>
+            <div className="space-y-1.5 text-xs font-medium text-[#BAC4D6]">
+              {[
+                language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
+                language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
+                language === 'ar' ? '3. إعدادات الخبراء (Expert Settings)' : '3. Expert Settings',
+                language === 'ar' ? '4. نقل قائمة القنوات' : '4. Transfer Channel List',
+                language === 'ar' ? '5. تصدير إلى USB' : '5. Export to USB',
+              ].map((step, idx) => (
+                <div
+                  key={idx}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono flex items-center justify-between ${
+                    idx === 4 ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/30' : 'bg-[#171D26] text-[#BAC4D6]'
+                  }`}
+                >
+                  <span>{step}</span>
+                  {idx < 4 && <ChevronRight className="w-3.5 h-3.5 text-[#5B6472] rtl:rotate-180" />}
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* ── Chevron 1 ── */}
-        <div className="hidden min-[901px]:flex items-center justify-center text-[#3A414D]">
+        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D]">
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
         {/* ── Step 2: Main In this app (Spacious Dropzone) ── */}
-        <div className="step-card main justify-between p-6 sm:p-9 shadow-2xl">
-          <div>
-            <span className="badge-app text-xs font-semibold px-3 py-1 mb-5">
-              {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
-            </span>
+        <div className="step-card main p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-2xl">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="badge-app text-xs font-semibold px-3 py-1">
+                {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
+              </span>
+              <span className="text-xs font-mono text-[#4C82FB] font-semibold">T5300 & Tizen</span>
+            </div>
 
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2.5">
               <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
               <span className="font-semibold text-lg sm:text-xl text-[#F1F4F8]">
-                {language === 'ar' ? 'الترتيب والتنظيم' : 'Organize'}
+                {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
               </span>
             </div>
 
-            {/* Spacious Centered Dropzone */}
+            {/* Spacious Dropzone with even internal padding */}
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`clean-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-12 mb-6 ${
-                isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.12)] scale-[1.01]' : ''
+              className={`clean-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-10 space-y-3 cursor-pointer transition-all ${
+                isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
               }`}
             >
               <input
@@ -156,19 +170,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                 className="hidden"
               />
 
-              <UploadCloud className="w-12 h-12 text-[#4C82FB] mb-3.5" />
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner mb-1">
+                <UploadCloud className="w-7 h-7" />
+              </div>
               
-              <p className="font-semibold text-base sm:text-lg text-[#F1F4F8] mb-1">
-                {language === 'ar' ? 'اسحب ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
-              </p>
-              
-              <p className="text-xs sm:text-sm text-[#8D96A8] mb-4">
-                {language === 'ar' ? 'أو اختر الملف من الفلاشة' : 'or click to browse from USB drive'}
-              </p>
+              <div className="space-y-1">
+                <p className="font-bold text-base sm:text-lg text-[#F1F4F8]">
+                  {language === 'ar' ? 'اسحب وأفلت ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
+                </p>
+                <p className="text-xs sm:text-sm text-[#8D96A8]">
+                  {language === 'ar' ? 'أو اضغط لاختيار الملف من الفلاشة' : 'or click anywhere to browse from your USB'}
+                </p>
+              </div>
               
               <button
                 type="button"
-                className="clean-browse-btn px-6 py-2.5 text-sm font-semibold rounded-xl hover:bg-[#1B212B] transition-all"
+                className="clean-browse-btn px-6 py-2 text-sm font-semibold rounded-xl mt-2 hover:bg-[#1B212B] transition-all"
                 disabled={isLoading}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -183,10 +200,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           {/* Auto-clean toggle & sample link */}
-          <div className="flex flex-col gap-3 mt-auto border-t border-[#232933] pt-4">
+          <div className="border-t border-[#232933] pt-4 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs sm:text-sm text-[#BAC4D6] font-medium">
-                {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicates'}
+                {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
               </span>
               <label className="clean-toggle">
                 <input
@@ -200,55 +217,71 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               </label>
             </div>
 
-            {/* Quick Demo link */}
-            <div className="pt-1 text-center">
+            <div className="text-center pt-1">
               <button
                 type="button"
                 onClick={handleLoadSample}
                 disabled={isLoading}
-                className="text-xs sm:text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                className="text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'جرّب بمثال حقيقي (2,109 قناة)' : 'Or try with a real demo (2,109 channels)'}</span>
+                <span>{language === 'ar' ? 'أو جرّب بقائمة تجريبية جاهزة (2,109 قناة)' : 'Or test with a sample channel list (2,109 channels)'}</span>
               </button>
             </div>
           </div>
         </div>
 
         {/* ── Chevron 2 ── */}
-        <div className="hidden min-[901px]:flex items-center justify-center text-[#3A414D]">
+        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D]">
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
         {/* ── Step 3: On your TV ── */}
-        <div className="step-card justify-between p-6 sm:p-8">
-          <div>
-            <span className="badge-tv text-xs font-semibold px-3 py-1 mb-5">
+        <div className="step-card p-6 sm:p-7 flex flex-col justify-between space-y-6">
+          <div className="space-y-3">
+            <span className="badge-tv text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
-            <div className="flex items-center gap-3 mb-2.5">
+            <div className="flex items-center gap-2.5">
               <span className="step-num w-7 h-7 text-xs font-bold">3</span>
-              <span className="font-semibold text-base sm:text-lg text-[#F1F4F8]">
-                {language === 'ar' ? 'استيراد القائمة' : 'Import list'}
+              <span className="font-semibold text-lg text-[#F1F4F8]">
+                {language === 'ar' ? 'استيراد للشاشة' : 'Import to TV'}
               </span>
             </div>
 
-            <p className="text-sm text-[#8D96A8] leading-relaxed mb-6">
-              {language === 'ar' ? 'حمّل ملف الـ zip المحدث للشاشة.' : 'Load the updated zip back to your TV.'}
+            <p className="text-sm text-[#8D96A8] leading-relaxed">
+              {language === 'ar'
+                ? 'ضع الفلاشة في التلفزيون واستورد القائمة الجديدة المنظمة.'
+                : 'Plug the USB back into your TV and import the clean channel list.'}
             </p>
           </div>
 
-          <div className="border-t border-[#232933] pt-4 mt-auto">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#8D96A8] mb-3">
+          {/* Clean Step-by-Step Path */}
+          <div className="border-t border-[#232933] pt-4 space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#8D96A8]">
               <Route className="w-4 h-4 text-emerald-400" />
-              <span>{language === 'ar' ? 'مسار الاستيراد في الشاشة' : 'Menu path on TV'}</span>
+              <span>{language === 'ar' ? 'مسار الاستيراد في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs leading-relaxed text-[#5B6472]">
-              <span className="px-2 py-1 rounded bg-[#171D26] text-[#BAC4D6] font-medium whitespace-nowrap">{language === 'ar' ? 'قائمة الإعدادات' : 'Settings menu'}</span>
-              <span className="text-[#3A414D]">›</span>
-              <span className="px-2 py-1 rounded bg-[#171D26] text-emerald-300 font-semibold whitespace-nowrap">{language === 'ar' ? 'استيراد من USB' : 'Import from USB'}</span>
+            <div className="space-y-1.5 text-xs font-medium text-[#BAC4D6]">
+              {[
+                language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
+                language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
+                language === 'ar' ? '3. إعدادات الخبراء (Expert Settings)' : '3. Expert Settings',
+                language === 'ar' ? '4. نقل قائمة القنوات' : '4. Transfer Channel List',
+                language === 'ar' ? '5. استيراد من USB' : '5. Import from USB',
+              ].map((step, idx) => (
+                <div
+                  key={idx}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono flex items-center justify-between ${
+                    idx === 4 ? 'bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30' : 'bg-[#171D26] text-[#BAC4D6]'
+                  }`}
+                >
+                  <span>{step}</span>
+                  {idx < 4 && <ChevronRight className="w-3.5 h-3.5 text-[#5B6472] rtl:rotate-180" />}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -256,7 +289,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       </div>
 
       {/* ── Footer ── */}
-      <div className="mt-10 flex items-center gap-2 text-xs sm:text-sm text-[#8D96A8]">
+      <div className="mt-8 flex items-center gap-2 text-xs sm:text-sm text-[#8D96A8]">
         <ShieldCheck className="w-4 h-4 text-emerald-400" />
         <span>
           {language === 'ar'
