@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { UploadCloud, ChevronRight, Route, ShieldCheck, Sparkles } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { UploadCloud, ChevronRight, ChevronDown, Route, ShieldCheck, Sparkles } from 'lucide-react';
 import { translations } from '../utils/i18n';
 
 interface FileUploaderProps {
@@ -16,7 +16,52 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const t = translations[language];
   const [isDragging, setIsDragging] = useState(false);
   const [autoCleanDuplicates, setAutoCleanDuplicates] = useState(true);
+  const [isExportPathExpanded, setIsExportPathExpanded] = useState(true);
+  const [isImportPathExpanded, setIsImportPathExpanded] = useState(true);
+  const [hasInitializedState, setHasInitializedState] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const isMobile = window.innerWidth < 960;
+    const hasVisited = localStorage.getItem('channelEditor.hasVisited');
+    const exportState = localStorage.getItem('channelEditor.menuPath.export');
+    const importState = localStorage.getItem('channelEditor.menuPath.import');
+
+    if (!hasVisited) {
+      localStorage.setItem('channelEditor.hasVisited', 'true');
+    }
+
+    if (isMobile) {
+      // Mobile always starts collapsed regardless of memory
+      setIsExportPathExpanded(false);
+      setIsImportPathExpanded(false);
+    } else {
+      if (!hasVisited) {
+        // First ever visit on desktop: expanded
+        setIsExportPathExpanded(true);
+        setIsImportPathExpanded(true);
+      } else {
+        // Returning visitor: collapsed by default, UNLESS explicitly saved as expanded
+        setIsExportPathExpanded(exportState === 'expanded');
+        setIsImportPathExpanded(importState === 'expanded');
+      }
+    }
+    setHasInitializedState(true);
+  }, []);
+
+  const toggleExportPath = () => {
+    const next = !isExportPathExpanded;
+    setIsExportPathExpanded(next);
+    localStorage.setItem('channelEditor.menuPath.export', next ? 'expanded' : 'collapsed');
+    localStorage.setItem('channelEditor.hasVisited', 'true');
+  };
+
+  const toggleImportPath = () => {
+    const next = !isImportPathExpanded;
+    setIsImportPathExpanded(next);
+    localStorage.setItem('channelEditor.menuPath.import', next ? 'expanded' : 'collapsed');
+    localStorage.setItem('channelEditor.hasVisited', 'true');
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -105,13 +150,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
           {/* Dedicated Padded Instruction Box */}
           <div className="step-path-box shadow-inner">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] mb-3">
-              <Route className="w-4 h-4 text-cyan-400" />
-              <span>{language === 'ar' ? 'مسار القائمة في الشاشة:' : 'TV Menu Path:'}</span>
-            </div>
+            <button 
+              className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              onClick={toggleExportPath}
+              aria-expanded={isExportPathExpanded}
+              aria-controls="export-path-list"
+            >
+              <Route className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span>{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
+              <ChevronDown className={`w-4 h-4 ml-auto shrink-0 transition-transform ${isExportPathExpanded ? 'rotate-180' : ''}`} />
+            </button>
 
             {/* Spacious Step Pills */}
-            <div>
+            <div 
+              id="export-path-list"
+              className={`overflow-hidden transition-all duration-300 ${isExportPathExpanded ? 'max-h-64 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}
+            >
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -124,7 +178,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                   className={`step-path-item ${idx === 4 ? 'active' : ''}`}
                 >
                   <span>{step}</span>
-                  {idx < 4 && <ChevronRight className="w-4 h-4 text-[#5B6472] rtl:rotate-180" />}
                 </div>
               ))}
             </div>
@@ -248,13 +301,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
           {/* Dedicated Padded Instruction Box */}
           <div className="step-path-box shadow-inner">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] mb-3">
-              <Route className="w-4 h-4 text-emerald-400" />
-              <span>{language === 'ar' ? 'مسار الاستيراد في الشاشة:' : 'TV Menu Path:'}</span>
-            </div>
+            <button 
+              className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              onClick={toggleImportPath}
+              aria-expanded={isImportPathExpanded}
+              aria-controls="import-path-list"
+            >
+              <Route className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
+              <ChevronDown className={`w-4 h-4 ml-auto shrink-0 transition-transform ${isImportPathExpanded ? 'rotate-180' : ''}`} />
+            </button>
 
             {/* Spacious Step Pills */}
-            <div>
+            <div 
+              id="import-path-list"
+              className={`overflow-hidden transition-all duration-300 ${isImportPathExpanded ? 'max-h-64 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}
+            >
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -267,7 +329,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                   className={`step-path-item ${idx === 4 ? 'active-import' : ''}`}
                 >
                   <span>{step}</span>
-                  {idx < 4 && <ChevronRight className="w-4 h-4 text-[#5B6472] rtl:rotate-180" />}
                 </div>
               ))}
             </div>
