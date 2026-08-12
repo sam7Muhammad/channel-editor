@@ -77,38 +77,42 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </p>
       </div>
 
-      {/* ── 3 Steps Row (with 4-way padding on cards and top/bottom margins) ── */}
-      <div className="steps-row">
+      {/* ── 3 Steps Row ── */}
+      <div className="steps-row items-stretch">
 
         {/* ── Step 1: On your TV ── */}
-        <div className="step-card flex flex-col justify-between">
-          <div className="space-y-3.5 mb-6">
+        <div className="step-card flex flex-col justify-start space-y-6">
+          
+          {/* Header & Description */}
+          <div className="space-y-4">
             <span className="badge-tv text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
             <div className="flex items-center gap-2.5 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">1</span>
-              <span className="font-semibold text-lg text-[#F1F4F8]">
+              <span className="font-semibold text-lg sm:text-xl text-[#F1F4F8]">
                 {language === 'ar' ? 'تصدير القائمة' : 'Export list'}
               </span>
             </div>
 
-            <p className="text-sm text-[#8D96A8] leading-relaxed">
+            {/* Extra breathing space above description */}
+            <p className="text-sm text-[#8D96A8] leading-relaxed pt-1.5">
               {language === 'ar'
                 ? 'احفظ القائمة على الفلاشة من إعدادات البث في التلفزيون.'
                 : 'Plug in a USB drive and export your channel list from TV settings.'}
             </p>
           </div>
 
-          {/* Clean Step-by-Step Path with ample padding */}
-          <div className="border-t border-[#232933] pt-5 mt-auto space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#8D96A8]">
+          {/* Dedicated Padded Instruction Box */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-3.5 shadow-inner">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#BAC4D6]">
               <Route className="w-4 h-4 text-cyan-400" />
               <span>{language === 'ar' ? 'مسار القائمة في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
-            <div className="space-y-2 text-xs font-medium text-[#BAC4D6]">
+            {/* Steps lines with generous spacing */}
+            <div className="space-y-2.5 font-mono text-[13px] sm:text-sm">
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -118,10 +122,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               ].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`px-3 py-2 rounded-lg text-xs font-mono flex items-center justify-between transition-colors ${
+                  className={`px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors ${
                     idx === 4
-                      ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/30'
-                      : 'bg-[#171D26] text-[#BAC4D6]'
+                      ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/35 shadow-sm'
+                      : 'bg-[#171D26] text-[#BAC4D6] hover:bg-[#1C232E]'
                   }`}
                 >
                   <span>{step}</span>
@@ -138,8 +142,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* ── Step 2: Main In this app (Spacious Dropzone) ── */}
-        <div className="step-card main flex flex-col justify-between">
-          <div className="space-y-4 mb-6">
+        <div className="step-card main flex flex-col justify-start space-y-6">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="badge-app text-xs font-semibold px-3 py-1">
                 {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
@@ -160,7 +164,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`clean-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-11 my-4 space-y-3.5 cursor-pointer transition-all ${
+              className={`clean-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-12 my-2 space-y-3.5 cursor-pointer transition-all ${
                 isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
               }`}
             >
@@ -202,7 +206,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           {/* Auto-clean toggle & sample link */}
-          <div className="border-t border-[#232933] pt-5 mt-auto space-y-3.5">
+          <div className="border-t border-[#232933] pt-5 space-y-3.5">
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs sm:text-sm text-[#BAC4D6] font-medium">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
@@ -239,34 +243,38 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* ── Step 3: On your TV ── */}
-        <div className="step-card flex flex-col justify-between">
-          <div className="space-y-3.5 mb-6">
+        <div className="step-card flex flex-col justify-start space-y-6">
+          
+          {/* Header & Description */}
+          <div className="space-y-4">
             <span className="badge-tv text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
             <div className="flex items-center gap-2.5 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">3</span>
-              <span className="font-semibold text-lg text-[#F1F4F8]">
+              <span className="font-semibold text-lg sm:text-xl text-[#F1F4F8]">
                 {language === 'ar' ? 'استيراد للشاشة' : 'Import to TV'}
               </span>
             </div>
 
-            <p className="text-sm text-[#8D96A8] leading-relaxed">
+            {/* Extra breathing space above description */}
+            <p className="text-sm text-[#8D96A8] leading-relaxed pt-1.5">
               {language === 'ar'
                 ? 'ضع الفلاشة في التلفزيون واستورد القائمة الجديدة المنظمة.'
                 : 'Plug the USB back into your TV and import the clean channel list.'}
             </p>
           </div>
 
-          {/* Clean Step-by-Step Path with ample padding */}
-          <div className="border-t border-[#232933] pt-5 mt-auto space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#8D96A8]">
+          {/* Dedicated Padded Instruction Box */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-3.5 shadow-inner">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#BAC4D6]">
               <Route className="w-4 h-4 text-emerald-400" />
               <span>{language === 'ar' ? 'مسار الاستيراد في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
-            <div className="space-y-2 text-xs font-medium text-[#BAC4D6]">
+            {/* Steps lines with generous spacing */}
+            <div className="space-y-2.5 font-mono text-[13px] sm:text-sm">
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -276,10 +284,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               ].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`px-3 py-2 rounded-lg text-xs font-mono flex items-center justify-between transition-colors ${
+                  className={`px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors ${
                     idx === 4
-                      ? 'bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/30'
-                      : 'bg-[#171D26] text-[#BAC4D6]'
+                      ? 'bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/35 shadow-sm'
+                      : 'bg-[#171D26] text-[#BAC4D6] hover:bg-[#1C232E]'
                   }`}
                 >
                   <span>{step}</span>
