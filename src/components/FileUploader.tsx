@@ -136,11 +136,11 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
-        {/* ── Step 2: Main In this app (Compact Dropzone) ── */}
+        {/* ── Step 2: Main In this app ── */}
         <div className="step-card main flex flex-col">
 
           {/* Header */}
-          <div className="mb-6">
+          <div className="mb-4">
             <span className="badge-app text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
             </span>
@@ -152,13 +152,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </div>
           </div>
 
-          {/* Dropzone — with margin top and bottom for breathing room */}
+          {/* Dropzone: grow fills remaining space, content is centered inside */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`clean-dropzone my-8 cursor-pointer transition-all ${
+            className={`clean-dropzone grow pb-6 cursor-pointer transition-all ${
               isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
             }`}
           >
@@ -199,7 +199,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           {/* Auto-clean toggle */}
-          <div className="border-t border-[#232933] pt-5">
+          <div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-[#BAC4D6] font-medium">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
