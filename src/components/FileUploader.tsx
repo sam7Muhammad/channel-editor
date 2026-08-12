@@ -136,74 +136,72 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
-        {/* ── Step 2: Main In this app (Spacious Dropzone) ── */}
-        <div className="step-card main flex flex-col justify-between">
-          <div className="flex flex-col flex-1">
-            {/* Header */}
-            <div>
-              <span className="badge-app text-xs font-semibold px-3 py-1">
-                {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
+        {/* ── Step 2: Main In this app (Compact Dropzone) ── */}
+        <div className="step-card main flex flex-col">
+
+          {/* Header */}
+          <div className="mb-6">
+            <span className="badge-app text-xs font-semibold px-3 py-1">
+              {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
+            </span>
+            <div className="flex items-center gap-3 pt-3">
+              <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
+              <span className="font-semibold text-xl text-[#F1F4F8]">
+                {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
               </span>
-
-              <div className="flex items-center gap-3 pt-1 mb-6">
-                <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
-                <span className="font-semibold text-xl text-[#F1F4F8]">
-                  {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
-                </span>
-              </div>
-            </div>
-
-            {/* Spacious Dropzone filling the center */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`clean-dropzone flex-1 flex flex-col items-center justify-center cursor-pointer transition-all ${
-                isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
-              }`}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileInput}
-                accept=".zip"
-                className="hidden"
-              />
-
-              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner mb-3">
-                <UploadCloud className="w-8 h-8" />
-              </div>
-              
-              <div className="space-y-1 mb-3">
-                <p className="font-bold text-base sm:text-lg text-[#F1F4F8]">
-                  {language === 'ar' ? 'اسحب وأفلت ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
-                </p>
-                <p className="text-xs sm:text-sm text-[#8D96A8]">
-                  {language === 'ar' ? 'أو اضغط لاختيار الملف من الفلاشة' : 'or click anywhere to browse from your USB'}
-                </p>
-              </div>
-              
-              <button
-                type="button"
-                className="clean-browse-btn mt-2"
-                disabled={isLoading}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
-              >
-                {isLoading
-                  ? (language === 'ar' ? 'جاري فتح الملف...' : 'Reading files...')
-                  : (language === 'ar' ? 'استعراض الملفات' : 'Browse files')}
-              </button>
             </div>
           </div>
 
-          {/* Auto-clean toggle cleanly anchored to bottom with balanced spacing */}
-          <div className="border-t border-[#232933] pt-6 mt-6">
+          {/* Dropzone — fixed natural size, does NOT stretch */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`clean-dropzone cursor-pointer transition-all ${
+              isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
+            }`}
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileInput}
+              accept=".zip"
+              className="hidden"
+            />
+
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner mb-3">
+              <UploadCloud className="w-7 h-7" />
+            </div>
+
+            <div className="space-y-1 mb-4">
+              <p className="font-bold text-base sm:text-lg text-[#F1F4F8]">
+                {language === 'ar' ? 'اسحب وأفلت ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
+              </p>
+              <p className="text-xs sm:text-sm text-[#8D96A8]">
+                {language === 'ar' ? 'أو اضغط لاختيار الملف من الفلاشة' : 'or click anywhere to browse from your USB'}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="clean-browse-btn"
+              disabled={isLoading}
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+            >
+              {isLoading
+                ? (language === 'ar' ? 'جاري فتح الملف...' : 'Reading files...')
+                : (language === 'ar' ? 'استعراض الملفات' : 'Browse files')}
+            </button>
+          </div>
+
+          {/* Auto-clean toggle — sits below dropzone with balanced spacing */}
+          <div className="border-t border-[#232933] mt-8 pt-5">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-[#BAC4D6] font-medium leading-relaxed">
+              <span className="text-sm text-[#BAC4D6] font-medium">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
               </span>
               <label className="clean-toggle">
