@@ -139,12 +139,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         {/* ── Step 2: Main In this app (Spacious Dropzone) ── */}
         <div className="step-card main flex flex-col justify-between">
           <div className="flex flex-col flex-1">
-            <div className="space-y-4 mb-8">
+            {/* Header */}
+            <div>
               <span className="badge-app text-xs font-semibold px-3 py-1">
                 {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
               </span>
 
-              <div className="flex items-center gap-3 pt-1">
+              <div className="flex items-center gap-3 pt-1 mb-6">
                 <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
                 <span className="font-semibold text-xl text-[#F1F4F8]">
                   {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
@@ -158,7 +159,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`clean-dropzone space-y-4 my-auto cursor-pointer transition-all ${
+              className={`clean-dropzone flex-1 flex flex-col items-center justify-center cursor-pointer transition-all ${
                 isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
               }`}
             >
@@ -170,11 +171,11 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                 className="hidden"
               />
 
-              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner mb-2">
+              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner mb-3">
                 <UploadCloud className="w-8 h-8" />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1 mb-3">
                 <p className="font-bold text-base sm:text-lg text-[#F1F4F8]">
                   {language === 'ar' ? 'اسحب وأفلت ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
                 </p>
@@ -185,7 +186,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               
               <button
                 type="button"
-                className="clean-browse-btn mt-3"
+                className="clean-browse-btn mt-2"
                 disabled={isLoading}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -199,8 +200,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </div>
           </div>
 
-          {/* Auto-clean toggle cleanly anchored to bottom */}
-          <div className="border-t border-[#232933] pt-8 mt-10 pb-3">
+          {/* Auto-clean toggle cleanly anchored to bottom with balanced spacing */}
+          <div className="border-t border-[#232933] pt-6 mt-6">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-[#BAC4D6] font-medium leading-relaxed">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
