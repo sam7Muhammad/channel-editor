@@ -181,6 +181,24 @@ export const App: React.FC = () => {
     setMoveToTarget(null);
   };
 
+  const handleNumberEdit = (srvId: string, newPosition: number) => {
+    saveUndoSnapshot(channels);
+    const targetIdx = Math.max(0, Math.min(channels.length - 1, newPosition - 1));
+    let updated = [...channels];
+    
+    const currIdx = updated.findIndex((c) => c.srvId === srvId);
+    if (currIdx !== -1 && currIdx !== targetIdx) {
+      const [item] = updated.splice(currIdx, 1);
+      updated.splice(targetIdx, 0, item);
+      
+      // Reassign major sequential
+      updated.forEach((ch, idx) => {
+        ch.major = idx + 1;
+      });
+      setChannels(updated);
+    }
+  };
+
   // Channel row actions
   const handleToggleLock = (srvId: string) => {
     saveUndoSnapshot(channels);
@@ -486,6 +504,7 @@ export const App: React.FC = () => {
                 onToggleFavorite={handleToggleFavorite}
                 onRename={handleRename}
                 onReorder={handleReorder}
+                onNumberEdit={handleNumberEdit}
                 language={language}
               />
             </div>

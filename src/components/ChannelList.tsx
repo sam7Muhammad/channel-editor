@@ -1,8 +1,24 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Channel } from '../types/channel';
 import { ChannelRow } from './ChannelRow';
 import { translations } from '../utils/i18n';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ChannelListProps {
   channels: Channel[];
@@ -14,8 +30,45 @@ interface ChannelListProps {
   onToggleFavorite: (srvId: string, favNumber: number) => void;
   onRename: (srvId: string, newName: string) => void;
   onReorder: (sourceIndex: number, destinationIndex: number) => void;
+  onNumberEdit: (srvId: string, newNumber: number) => void;
   language: 'en' | 'ar';
 }
+
+const SortableChannelRow = (props: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.channel.srvId });
+
+  const dndTransform = CSS.Translate.toString(transform);
+  
+  const mergedTransform = [
+    props.style?.transform,
+    dndTransform,
+  ].filter(Boolean).join(' ');
+
+  const style = {
+    ...props.style,
+    transform: mergedTransform,
+    transition,
+    zIndex: isDragging ? 50 : 0,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={isDragging ? 'shadow-2xl shadow-cyan-900/50' : ''}>
+      <ChannelRow
+        {...props}
+        dragRef={setActivatorNodeRef}
+        dragListeners={{ ...attributes, ...listeners }}
+      />
+    </div>
+  );
+};
 
 export const ChannelList: React.FC<ChannelListProps> = ({
   channels,
@@ -27,12 +80,11 @@ export const ChannelList: React.FC<ChannelListProps> = ({
   onToggleFavorite,
   onRename,
   onReorder,
+  onNumberEdit,
   language,
 }) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const t = translations[language];
-
-  const [draggedChannel, setDraggedChannel] = useState<Channel | null>(null);
 
   const rowVirtualizer = useVirtualizer({
     count: channels.length,
@@ -41,26 +93,26 @@ export const ChannelList: React.FC<ChannelListProps> = ({
     overscan: 20,
   });
 
-  const handleDragStart = (e: React.DragEvent, channel: Channel) => {
-    setDraggedChannel(channel);
-    e.dataTransfer.setData('text/plain', channel.srvId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
-    e.preventDefault();
-    if (!draggedChannel) return;
-
-    const sourceIndex = channels.findIndex((c) => c.srvId === draggedChannel.srvId);
-    if (sourceIndex !== -1 && sourceIndex !== targetIndex) {
-      onReorder(sourceIndex, targetIndex);
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = channels.findIndex((c) => c.srvId === active.id);
+      const newIndex = channels.findIndex((c) => c.srvId === over.id);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        onReorder(oldIndex, newIndex);
+      }
     }
-    setDraggedChannel(null);
   };
 
   if (channels.length === 0) {
@@ -72,75 +124,80 @@ export const ChannelList: React.FC<ChannelListProps> = ({
     );
   }
 
-  return (
-    <div className="flex-1 flex flex-col min-h-0">
-      {/* Table Column Headers */}
-      <div
-        className="flex items-center gap-3.5 px-5 py-3 border-b text-xs font-extrabold uppercase tracking-wider select-none"
-        style={{
-          backgroundColor: 'var(--bg-tertiary)',
-          borderColor: 'var(--border-color)',
-          color: 'var(--text-secondary)',
-        }}
-      >
-        <div className="w-4"></div>
-        <div className="w-4"></div>
-        <div className="w-16 text-right pr-2 text-cyan-400">{t.orderCol}</div>
-        <div className="w-4"></div>
-        <div className="flex-1 min-w-[200px]">{t.nameCol}</div>
-        <div className="hidden lg:block w-36">{t.freqCol}</div>
-        <div className="hidden sm:block w-32">{t.signalCol}</div>
-        <div className="w-32 text-center">{t.favorites} (1-5)</div>
-        <div className="w-24 text-right pr-3">{t.statusCol}</div>
-      </div>
+  const channelIds = channels.map((c) => c.srvId);
 
-      {/* Virtual Scroll Container */}
-      <div
-        ref={parentRef}
-        className="flex-1 overflow-y-auto min-h-[550px] max-h-[calc(100vh-280px)]"
-      >
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Table Column Headers */}
         <div
+          className="flex items-center gap-3.5 px-5 py-3 border-b text-xs font-extrabold uppercase tracking-wider select-none"
           style={{
-            height: `${rowVirtualizer.getTotalSize()}px`,
-            width: '100%',
-            position: 'relative',
+            backgroundColor: 'var(--bg-tertiary)',
+            borderColor: 'var(--border-color)',
+            color: 'var(--text-secondary)',
           }}
         >
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-            const channel = channels[virtualRow.index];
-            if (!channel) return null;
+          <div className="w-4"></div>
+          <div className="w-4"></div>
+          <div className="w-16 text-right pr-2 text-cyan-400">{t.orderCol}</div>
+          <div className="w-4"></div>
+          <div className="flex-1 min-w-[200px]">{t.nameCol}</div>
+          <div className="hidden lg:block w-36">{t.freqCol}</div>
+          <div className="hidden sm:block w-32">{t.signalCol}</div>
+          <div className="w-32 text-center">{t.favorites} (1-5)</div>
+          <div className="w-24 text-right pr-3">{t.statusCol}</div>
+        </div>
 
-            return (
-              <div
-                key={channel.srvId}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                }}
-              >
-                <ChannelRow
-                  channel={channel}
-                  index={virtualRow.index}
-                  isSelected={selectedIds.has(channel.srvId)}
-                  onToggleSelect={onToggleSelect}
-                  onQuickMove={onQuickMove}
-                  onToggleLock={onToggleLock}
-                  onToggleHidden={onToggleHidden}
-                  onToggleFavorite={onToggleFavorite}
-                  onRename={onRename}
-                  onDragStart={handleDragStart}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                />
-              </div>
-            );
-          })}
+        {/* Virtual Scroll Container */}
+        <div
+          ref={parentRef}
+          className="flex-1 overflow-y-auto min-h-[550px] max-h-[calc(100vh-280px)]"
+        >
+          <SortableContext items={channelIds} strategy={verticalListSortingStrategy}>
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const channel = channels[virtualRow.index];
+                if (!channel) return null;
+
+                return (
+                  <SortableChannelRow
+                    key={channel.srvId}
+                    channel={channel}
+                    index={virtualRow.index}
+                    isSelected={selectedIds.has(channel.srvId)}
+                    onToggleSelect={onToggleSelect}
+                    onQuickMove={onQuickMove}
+                    onToggleLock={onToggleLock}
+                    onToggleHidden={onToggleHidden}
+                    onToggleFavorite={onToggleFavorite}
+                    onRename={onRename}
+                    onNumberEdit={onNumberEdit}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </SortableContext>
         </div>
       </div>
-    </div>
+    </DndContext>
   );
 };

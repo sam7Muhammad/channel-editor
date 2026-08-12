@@ -26,9 +26,9 @@ interface ChannelRowProps {
   onToggleHidden: (srvId: string) => void;
   onToggleFavorite: (srvId: string, favNumber: number) => void;
   onRename: (srvId: string, newName: string) => void;
-  onDragStart?: (e: React.DragEvent, channel: Channel) => void;
-  onDragOver?: (e: React.DragEvent, index: number) => void;
-  onDrop?: (e: React.DragEvent, index: number) => void;
+  onNumberEdit: (srvId: string, newNumber: number) => void;
+  dragRef?: (node: HTMLElement | null) => void;
+  dragListeners?: Record<string, any>;
 }
 
 export const ChannelRow: React.FC<ChannelRowProps> = ({
@@ -41,12 +41,15 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
   onToggleHidden,
   onToggleFavorite,
   onRename,
-  onDragStart,
-  onDragOver,
-  onDrop,
+  onNumberEdit,
+  dragRef,
+  dragListeners,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(channel.srvName);
+  
+  const [isEditingNumber, setIsEditingNumber] = useState(false);
+  const [editNumber, setEditNumber] = useState(channel.major.toString());
 
   const handleSaveRename = () => {
     if (editName.trim() && editName !== channel.srvName) {
@@ -63,6 +66,24 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
     }
   };
 
+  const handleSaveNumber = () => {
+    const parsed = parseInt(editNumber, 10);
+    if (!isNaN(parsed) && parsed > 0 && parsed !== channel.major) {
+      onNumberEdit(channel.srvId, parsed);
+    } else {
+      setEditNumber(channel.major.toString());
+    }
+    setIsEditingNumber(false);
+  };
+
+  const handleKeyDownNumber = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSaveNumber();
+    if (e.key === 'Escape') {
+      setEditNumber(channel.major.toString());
+      setIsEditingNumber(false);
+    }
+  };
+
   // Signal color coding
   let signalClass = 'signal-good';
   if (channel.sigQa >= 70 && channel.bitErr === 0) signalClass = 'signal-great';
@@ -71,10 +92,6 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
 
   return (
     <div
-      draggable
-      onDragStart={(e) => onDragStart?.(e, channel)}
-      onDragOver={(e) => onDragOver?.(e, index)}
-      onDrop={(e) => onDrop?.(e, index)}
       className={`group flex items-center gap-3.5 px-5 py-3 border-b transition-colors text-sm ${
         isSelected
           ? 'bg-blue-500/15 border-l-4 border-l-cyan-400'
@@ -86,7 +103,9 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
     >
       {/* Drag Handle */}
       <div
-        className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-cyan-400 p-0.5"
+        ref={dragRef}
+        {...dragListeners}
+        className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-cyan-400 p-0.5 outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 rounded"
         title="Drag to reorder channel position"
       >
         <GripVertical className="w-4 h-4" />
@@ -102,8 +121,30 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
       />
 
       {/* Major Order # Badge */}
-      <div className="w-16 font-mono font-bold text-sm text-right pr-2 text-cyan-400">
-        #{channel.major}
+      <div className="w-16 flex-shrink-0 pr-2 flex justify-end">
+        {isEditingNumber ? (
+          <input
+            type="number"
+            value={editNumber}
+            onChange={(e) => setEditNumber(e.target.value)}
+            onKeyDown={handleKeyDownNumber}
+            onBlur={handleSaveNumber}
+            autoFocus
+            min={1}
+            className="w-full max-w-[60px] bg-slate-800 text-cyan-400 font-mono font-bold text-sm px-1 py-0.5 rounded text-right focus:outline-none focus:ring-1 focus:ring-cyan-400"
+          />
+        ) : (
+          <div 
+            onClick={() => {
+              setEditNumber(channel.major.toString());
+              setIsEditingNumber(true);
+            }}
+            className="font-mono font-bold text-sm text-cyan-400 cursor-pointer hover:bg-slate-700/50 rounded px-1 py-0.5"
+            title="Click to edit channel number"
+          >
+            #{channel.major}
+          </div>
+        )}
       </div>
 
       {/* Type Icon */}

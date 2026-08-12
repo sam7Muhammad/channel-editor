@@ -65,7 +65,6 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
     customPrompt: '',
   });
 
-  const [inputApiKey, setInputApiKey] = useState(apiKey);
   const [progressMsg, setProgressMsg] = useState('');
   const [progressPercent, setProgressPercent] = useState(0);
   const [aiResults, setAiResults] = useState<AIOrganizeResult | null>(null);
@@ -96,10 +95,6 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
     setProgressMsg(language === 'ar' ? 'جاري تحليل القنوات والترددات...' : 'Analyzing channel frequencies and telemetry...');
     setProgressPercent(15);
 
-    if (inputApiKey !== apiKey) {
-      onSaveApiKey(inputApiKey);
-    }
-
     try {
       // Find scrambled channels if option is enabled
       const scrambledIds = new Set<string>();
@@ -114,7 +109,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
       const results = await AIOrganizeService.organizeWithOptions(
         channels,
         options,
-        inputApiKey || apiKey,
+        apiKey,
         (msg, pct) => {
           setProgressMsg(msg);
           setProgressPercent(pct);
@@ -192,9 +187,22 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold tracking-tight">
-                {language === 'ar' ? 'المنظم الذكي للقنوات (AI Organizer)' : 'AI Smart Channel Organizer'}
-              </h2>
+              <div className="flex items-center gap-2 mb-0.5">
+                <h2 className="text-xl font-bold tracking-tight">
+                  {language === 'ar' ? 'المنظم الذكي للقنوات (AI Organizer)' : 'AI Smart Channel Organizer'}
+                </h2>
+                {apiKey && apiKey.trim() !== '' ? (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 flex items-center gap-1 shadow-sm">
+                    <Sparkles className="w-3 h-3" />
+                    Gemini API Active
+                  </span>
+                ) : (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 flex items-center gap-1 shadow-sm">
+                    <Zap className="w-3 h-3" />
+                    Local Fast Engine
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-slate-400">
                 {language === 'ar'
                   ? 'اكتب طلبك الخاص للذكاء الاصطناعي وحدد خيارات التنظيم'
