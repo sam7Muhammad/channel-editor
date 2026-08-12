@@ -15,16 +15,15 @@ export class AIOrganizeService {
     apiKey?: string,
     onProgress?: OrganizeProgressCallback
   ): Promise<AIOrganizeResult> {
-    // If Gemini API Key is provided, attempt online AI first
-    if (apiKey && apiKey.trim() !== '') {
-      try {
-        onProgress?.('Sending custom instructions & channels to Gemini 2.0 Flash...', 30);
-        return await this.organizeWithGemini(channels, options, apiKey, onProgress);
-      } catch (err) {
-        console.warn('Gemini API call failed, using advanced local NLP engine:', err);
+    if (options.engineMode === 'ai') {
+      if (!apiKey || apiKey.trim() === '') {
+        throw new Error('API key is required for Google Gemini AI mode.');
       }
+      onProgress?.('Sending custom instructions & channels to Gemini 2.0 Flash...', 30);
+      return await this.organizeWithGemini(channels, options, apiKey, onProgress);
     }
 
+    // Local Engine
     onProgress?.('Processing natural language prompt & frequency telemetry...', 40);
     const result = this.organizeOfflineRuleBased(channels, options);
     onProgress?.('Organization analysis complete!', 100);

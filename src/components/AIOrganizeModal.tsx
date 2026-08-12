@@ -25,6 +25,7 @@ export interface AIOrganizeOptions {
   groupRadioAtEnd: boolean;
   renumberSequential: boolean;
   customPrompt: string;
+  engineMode: 'ai' | 'local';
 }
 
 interface AIOrganizeModalProps {
@@ -63,6 +64,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
     groupRadioAtEnd: true,
     renumberSequential: true,
     customPrompt: '',
+    engineMode: apiKey && apiKey.trim() !== '' ? 'ai' : 'local',
   });
 
   const [progressMsg, setProgressMsg] = useState('');
@@ -91,6 +93,11 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
   };
 
   const handleStartAnalysis = async () => {
+    if (options.engineMode === 'ai' && (!apiKey || apiKey.trim() === '')) {
+      alert(language === 'ar' ? 'الرجاء إضافة مفتاح API الخاص بـ Gemini في الإعدادات أولاً لاستخدام الذكاء الاصطناعي.' : 'Please add your Google Gemini API key in Settings first to use the AI engine.');
+      return;
+    }
+
     setStep('analyzing');
     setProgressMsg(language === 'ar' ? 'جاري تحليل القنوات والترددات...' : 'Analyzing channel frequencies and telemetry...');
     setProgressPercent(15);
@@ -225,6 +232,34 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
           {/* ════════ STEP 1: OPTIONS & CUSTOM PROMPT ════════ */}
           {step === 'options' && (
             <div className="space-y-6">
+
+              {/* 🧠 Engine Selection Toggle */}
+              <div className="p-1 rounded-2xl bg-slate-900/50 border border-slate-800 flex shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setOptions({ ...options, engineMode: 'ai' })}
+                  className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all ${
+                    options.engineMode === 'ai'
+                      ? 'bg-purple-600 shadow-lg text-white'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Sparkles className={`w-4 h-4 ${options.engineMode === 'ai' ? 'text-purple-200' : ''}`} />
+                  {language === 'ar' ? 'Google Gemini AI' : 'Google Gemini AI'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOptions({ ...options, engineMode: 'local' })}
+                  className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all ${
+                    options.engineMode === 'local'
+                      ? 'bg-cyan-600 shadow-lg text-white'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Zap className={`w-4 h-4 ${options.engineMode === 'local' ? 'text-cyan-200' : ''}`} />
+                  {language === 'ar' ? 'محرك محلي سريع' : 'Local Fast Engine'}
+                </button>
+              </div>
 
               {/* 💬 Custom AI Prompt Input Area (With Generous Padding & Comfortable Sizing) */}
               <div
