@@ -60,9 +60,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     >
       
       {/* ── Page Heading ── */}
-      <div className="mb-2 mt-2">
+      <div className="mb-4 mt-2">
         <h1
-          className="font-bold text-white mb-2 tracking-tight"
+          className="font-bold text-white mb-2.5 tracking-tight"
           style={{ fontSize: 'clamp(24px, 2.6vw, 34px)', lineHeight: 1.25 }}
         >
           {language === 'ar' ? 'رتّب ونظّف قائمة قنواتك' : 'Clean up your channel list'}
@@ -81,7 +81,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       <div className="steps-row items-stretch">
 
         {/* ── Step 1: On your TV ── */}
-        <div className="step-card flex flex-col justify-start space-y-6">
+        <div className="step-card flex flex-col justify-start space-y-7">
           
           {/* Header & Description */}
           <div className="space-y-4">
@@ -89,30 +89,29 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
-            <div className="flex items-center gap-2.5 pt-1">
+            <div className="flex items-center gap-3 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">1</span>
-              <span className="font-semibold text-lg sm:text-xl text-[#F1F4F8]">
+              <span className="font-semibold text-xl text-[#F1F4F8]">
                 {language === 'ar' ? 'تصدير القائمة' : 'Export list'}
               </span>
             </div>
 
-            {/* Extra breathing space above description */}
-            <p className="text-sm text-[#8D96A8] leading-relaxed pt-1.5">
+            <p className="text-sm text-[#8D96A8] leading-relaxed pt-2">
               {language === 'ar'
                 ? 'احفظ القائمة على الفلاشة من إعدادات البث في التلفزيون.'
                 : 'Plug in a USB drive and export your channel list from TV settings.'}
             </p>
           </div>
 
-          {/* Dedicated Padded Instruction Box */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-3.5 shadow-inner">
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#BAC4D6]">
+          {/* Dedicated Padded Instruction Box matching your screenshot */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-4 shadow-inner">
+            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6]">
               <Route className="w-4 h-4 text-cyan-400" />
               <span>{language === 'ar' ? 'مسار القائمة في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
-            {/* Steps lines with generous spacing */}
-            <div className="space-y-2.5 font-mono text-[13px] sm:text-sm">
+            {/* Spacious Step Pills */}
+            <div className="space-y-3 font-mono text-sm">
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -122,27 +121,27 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               ].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors ${
+                  className={`px-4 py-3.5 rounded-xl flex items-center justify-between transition-colors ${
                     idx === 4
                       ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/35 shadow-sm'
                       : 'bg-[#171D26] text-[#BAC4D6] hover:bg-[#1C232E]'
                   }`}
                 >
                   <span>{step}</span>
-                  {idx < 4 && <ChevronRight className="w-3.5 h-3.5 text-[#5B6472] rtl:rotate-180" />}
+                  {idx < 4 && <ChevronRight className="w-4 h-4 text-[#5B6472] rtl:rotate-180" />}
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* ── Chevron ── */}
-        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] p-1.5 m-1.5">
+        {/* ── Chevron 1 ── */}
+        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] px-2 my-auto">
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
         {/* ── Step 2: Main In this app (Spacious Dropzone) ── */}
-        <div className="step-card main flex flex-col justify-start space-y-6">
+        <div className="step-card main flex flex-col justify-start space-y-7">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="badge-app text-xs font-semibold px-3 py-1">
@@ -151,9 +150,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               <span className="text-xs font-mono text-[#4C82FB] font-semibold">T5300 & Tizen</span>
             </div>
 
-            <div className="flex items-center gap-2.5 pt-1">
+            <div className="flex items-center gap-3 pt-1">
               <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
-              <span className="font-semibold text-lg sm:text-xl text-[#F1F4F8]">
+              <span className="font-semibold text-xl text-[#F1F4F8]">
                 {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
               </span>
             </div>
@@ -164,7 +163,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`clean-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-12 my-2 space-y-3.5 cursor-pointer transition-all ${
+              className={`clean-dropzone flex flex-col items-center justify-center text-center p-8 sm:p-12 my-2 space-y-4 cursor-pointer transition-all ${
                 isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
               }`}
             >
@@ -176,11 +175,11 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                 className="hidden"
               />
 
-              <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner">
-                <UploadCloud className="w-7 h-7" />
+              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner mb-1">
+                <UploadCloud className="w-8 h-8" />
               </div>
               
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <p className="font-bold text-base sm:text-lg text-[#F1F4F8]">
                   {language === 'ar' ? 'اسحب وأفلت ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
                 </p>
@@ -206,9 +205,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           {/* Auto-clean toggle & sample link */}
-          <div className="border-t border-[#232933] pt-5 space-y-3.5">
+          <div className="border-t border-[#232933] pt-5 space-y-4">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-xs sm:text-sm text-[#BAC4D6] font-medium">
+              <span className="text-sm text-[#BAC4D6] font-medium">
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
               </span>
               <label className="clean-toggle">
@@ -228,7 +227,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                 type="button"
                 onClick={handleLoadSample}
                 disabled={isLoading}
-                className="text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                className="text-xs sm:text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{language === 'ar' ? 'أو جرّب بقائمة تجريبية جاهزة (2,109 قناة)' : 'Or test with a sample channel list (2,109 channels)'}</span>
@@ -238,12 +237,12 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* ── Chevron 2 ── */}
-        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] p-1.5 m-1.5">
+        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] px-2 my-auto">
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
         {/* ── Step 3: On your TV ── */}
-        <div className="step-card flex flex-col justify-start space-y-6">
+        <div className="step-card flex flex-col justify-start space-y-7">
           
           {/* Header & Description */}
           <div className="space-y-4">
@@ -251,15 +250,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
-            <div className="flex items-center gap-2.5 pt-1">
+            <div className="flex items-center gap-3 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">3</span>
-              <span className="font-semibold text-lg sm:text-xl text-[#F1F4F8]">
+              <span className="font-semibold text-xl text-[#F1F4F8]">
                 {language === 'ar' ? 'استيراد للشاشة' : 'Import to TV'}
               </span>
             </div>
 
-            {/* Extra breathing space above description */}
-            <p className="text-sm text-[#8D96A8] leading-relaxed pt-1.5">
+            <p className="text-sm text-[#8D96A8] leading-relaxed pt-2">
               {language === 'ar'
                 ? 'ضع الفلاشة في التلفزيون واستورد القائمة الجديدة المنظمة.'
                 : 'Plug the USB back into your TV and import the clean channel list.'}
@@ -267,14 +265,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           {/* Dedicated Padded Instruction Box */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-3.5 shadow-inner">
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#BAC4D6]">
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-4 shadow-inner">
+            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6]">
               <Route className="w-4 h-4 text-emerald-400" />
               <span>{language === 'ar' ? 'مسار الاستيراد في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
-            {/* Steps lines with generous spacing */}
-            <div className="space-y-2.5 font-mono text-[13px] sm:text-sm">
+            {/* Spacious Step Pills */}
+            <div className="space-y-3 font-mono text-sm">
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -284,14 +282,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               ].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors ${
+                  className={`px-4 py-3.5 rounded-xl flex items-center justify-between transition-colors ${
                     idx === 4
                       ? 'bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/35 shadow-sm'
                       : 'bg-[#171D26] text-[#BAC4D6] hover:bg-[#1C232E]'
                   }`}
                 >
                   <span>{step}</span>
-                  {idx < 4 && <ChevronRight className="w-3.5 h-3.5 text-[#5B6472] rtl:rotate-180" />}
+                  {idx < 4 && <ChevronRight className="w-4 h-4 text-[#5B6472] rtl:rotate-180" />}
                 </div>
               ))}
             </div>
