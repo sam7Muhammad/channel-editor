@@ -98,31 +98,34 @@ body[dir="rtl"] {
 /* Steps Row & Cards Grid */
 .steps-row {
   display: grid;
-  grid-template-columns: minmax(0,1fr) minmax(24px,48px) minmax(0,1.6fr) minmax(24px,48px) minmax(0,1fr);
+  grid-template-columns: minmax(0,1fr) minmax(28px,56px) minmax(0,1.7fr) minmax(28px,56px) minmax(0,1fr);
   align-items: stretch;
   width: 100%;
+  min-height: 460px;
 }
 
 @media (max-width: 900px) {
   .steps-row {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
+    min-height: auto;
   }
 }
 
 .step-card {
   background: var(--bg-card);
-  border: 0.5px solid var(--border-color);
-  border-radius: 12px;
-  padding: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .step-card.main {
   border: 2px solid var(--accent-blue);
-  padding: 26px;
+  background: linear-gradient(180deg, rgba(18, 22, 29, 1) 0%, rgba(14, 18, 24, 1) 100%);
+  box-shadow: 0 10px 40px -10px rgba(76, 130, 251, 0.18);
 }
 
 /* Badges */
