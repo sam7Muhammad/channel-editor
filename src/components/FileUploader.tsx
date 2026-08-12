@@ -103,15 +103,15 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </p>
           </div>
 
-          {/* Dedicated Padded Instruction Box matching your screenshot */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-4 shadow-inner">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6]">
+          {/* Dedicated Padded Instruction Box */}
+          <div className="step-path-box shadow-inner">
+            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] mb-3">
               <Route className="w-4 h-4 text-cyan-400" />
               <span>{language === 'ar' ? 'مسار القائمة في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
             {/* Spacious Step Pills */}
-            <div className="space-y-3 font-mono text-sm">
+            <div>
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -121,11 +121,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               ].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`px-4 py-3.5 rounded-xl flex items-center justify-between transition-colors ${
-                    idx === 4
-                      ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/35 shadow-sm'
-                      : 'bg-[#171D26] text-[#BAC4D6] hover:bg-[#1C232E]'
-                  }`}
+                  className={`step-path-item ${idx === 4 ? 'active' : ''}`}
                 >
                   <span>{step}</span>
                   {idx < 4 && <ChevronRight className="w-4 h-4 text-[#5B6472] rtl:rotate-180" />}
@@ -265,14 +261,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           {/* Dedicated Padded Instruction Box */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1218] border border-[#232933] space-y-4 shadow-inner">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6]">
+          <div className="step-path-box shadow-inner">
+            <div className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] mb-3">
               <Route className="w-4 h-4 text-emerald-400" />
               <span>{language === 'ar' ? 'مسار الاستيراد في الشاشة:' : 'TV Menu Path:'}</span>
             </div>
 
             {/* Spacious Step Pills */}
-            <div className="space-y-3 font-mono text-sm">
+            <div>
               {[
                 language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
                 language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
@@ -282,11 +278,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               ].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`px-4 py-3.5 rounded-xl flex items-center justify-between transition-colors ${
-                    idx === 4
-                      ? 'bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/35 shadow-sm'
-                      : 'bg-[#171D26] text-[#BAC4D6] hover:bg-[#1C232E]'
-                  }`}
+                  className={`step-path-item ${idx === 4 ? 'active-import' : ''}`}
                 >
                   <span>{step}</span>
                   {idx < 4 && <ChevronRight className="w-4 h-4 text-[#5B6472] rtl:rotate-180" />}
