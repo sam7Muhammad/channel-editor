@@ -12,9 +12,11 @@ import {
   Radio,
   Tv,
   ArrowUpDown,
+  Tag,
 } from 'lucide-react';
 import { Channel } from '../types/channel';
 import { formatFrequency } from '../utils/samsungEncoder';
+import { PREDEFINED_CATEGORIES } from '../types/category';
 
 interface ChannelRowProps {
   channel: Channel;
@@ -27,6 +29,7 @@ interface ChannelRowProps {
   onToggleFavorite: (srvId: string, favNumber: number) => void;
   onRename: (srvId: string, newName: string) => void;
   onNumberEdit: (srvId: string, newNumber: number) => void;
+  onAssignCategory?: (srvId: string, category: string) => void;
   dragRef?: (node: HTMLElement | null) => void;
   dragListeners?: Record<string, any>;
 }
@@ -42,6 +45,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
   onToggleFavorite,
   onRename,
   onNumberEdit,
+  onAssignCategory,
   dragRef,
   dragListeners,
 }) => {
@@ -89,6 +93,10 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
   if (channel.sigQa >= 70 && channel.bitErr === 0) signalClass = 'signal-great';
   else if (channel.sigQa < 40 || channel.bitErr > 200) signalClass = 'signal-poor';
   else if (channel.sigQa < 55) signalClass = 'signal-mid';
+
+  const matchedPredef = PREDEFINED_CATEGORIES.find(
+    (c) => c.name.toLowerCase() === (channel.category || '').toLowerCase()
+  );
 
   return (
     <div
@@ -189,7 +197,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2.5 group/name flex-1">
+          <div className="flex items-center gap-2.5 group/name flex-1 flex-wrap">
             <span
               onDoubleClick={() => setIsEditing(true)}
               className="font-bold hover:text-cyan-400 cursor-text select-text text-sm sm:text-base"
@@ -224,6 +232,35 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
                 TEST
               </span>
             )}
+
+            {/* Category Badge / Quick assign */}
+            {channel.category ? (
+              <span
+                className="badge text-[10px] bg-purple-500/20 text-purple-300 border-purple-500/30 flex items-center gap-1 font-semibold cursor-pointer hover:bg-purple-500/30 transition-colors"
+                title={`Assigned Category: ${channel.category} (Click to change)`}
+                onClick={() => {
+                  if (onAssignCategory) {
+                    const nextCat = prompt('Change category for this channel:', channel.category);
+                    if (nextCat !== null) onAssignCategory(channel.srvId, nextCat.trim());
+                  }
+                }}
+              >
+                <span>{matchedPredef?.icon || '📁'}</span>
+                <span>{channel.category}</span>
+              </span>
+            ) : onAssignCategory ? (
+              <button
+                onClick={() => {
+                  const cat = prompt('Assign category for this channel:');
+                  if (cat && cat.trim()) onAssignCategory(channel.srvId, cat.trim());
+                }}
+                className="opacity-0 group-hover/name:opacity-100 p-0.5 text-[10px] text-slate-400 hover:text-purple-300 transition-opacity flex items-center gap-0.5 rounded px-1 hover:bg-purple-500/10"
+                title="Assign category"
+              >
+                <Tag className="w-3 h-3" />
+                <span>+Cat</span>
+              </button>
+            ) : null}
           </div>
         )}
       </div>

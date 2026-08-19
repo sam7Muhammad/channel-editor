@@ -31,6 +31,7 @@ interface ChannelListProps {
   onRename: (srvId: string, newName: string) => void;
   onReorder: (sourceIndex: number, destinationIndex: number) => void;
   onNumberEdit: (srvId: string, newNumber: number) => void;
+  onAssignCategory?: (srvId: string, category: string) => void;
   language: 'en' | 'ar';
 }
 
@@ -81,6 +82,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
   onRename,
   onReorder,
   onNumberEdit,
+  onAssignCategory,
   language,
 }) => {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -183,6 +185,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                     onToggleFavorite={onToggleFavorite}
                     onRename={onRename}
                     onNumberEdit={onNumberEdit}
+                    onAssignCategory={onAssignCategory}
                     style={{
                       position: 'absolute',
                       top: 0,

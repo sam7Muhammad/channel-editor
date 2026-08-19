@@ -221,6 +221,22 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleAssignCategory = (srvId: string, categoryName: string) => {
+    saveUndoSnapshot(channels);
+    setChannels((prev) =>
+      prev.map((c) => (c.srvId === srvId ? { ...c, category: categoryName } : c))
+    );
+  };
+
+  const handleBulkAssignCategory = (categoryName: string) => {
+    saveUndoSnapshot(channels);
+    setChannels((prev) =>
+      prev.map((c) =>
+        selectedIds.has(c.srvId) ? { ...c, category: categoryName } : c
+      )
+    );
+  };
+
   const handleToggleFavorite = (srvId: string, favNumber: number) => {
     saveUndoSnapshot(channels);
     setChannels((prev) =>
@@ -271,6 +287,15 @@ export const App: React.FC = () => {
     setSelectedIds(next);
   };
 
+  // Distinct categories list across channels
+  const availableCategories = useMemo(() => {
+    const catSet = new Set<string>();
+    channels.forEach((c) => {
+      if (c.category && c.category.trim()) catSet.add(c.category);
+    });
+    return Array.from(catSet);
+  }, [channels]);
+
   // Filtered Channels
   const filteredChannels = useMemo(() => {
     return channels.filter((ch) => {
@@ -281,6 +306,15 @@ export const App: React.FC = () => {
         const matchesNum = String(ch.major) === q;
         const matchesFreq = String(ch.freq).includes(q);
         if (!matchesName && !matchesNum && !matchesFreq) return false;
+      }
+
+      // Category filter
+      if (filter.categoryFilter && filter.categoryFilter !== 'all') {
+        if (filter.categoryFilter === 'uncategorized') {
+          if (ch.category && ch.category.trim() !== '') return false;
+        } else {
+          if (ch.category !== filter.categoryFilter) return false;
+        }
       }
 
       // Type filter
@@ -471,6 +505,7 @@ export const App: React.FC = () => {
                 filter={filter}
                 onFilterChange={setFilter}
                 satellites={satellites}
+                categories={availableCategories}
                 selectedCount={selectedIds.size}
                 totalFilteredCount={filteredChannels.length}
                 totalCount={channels.length}
@@ -487,6 +522,7 @@ export const App: React.FC = () => {
                 onBulkHide={handleBulkHide}
                 onBulkLock={handleBulkLock}
                 onBulkFavorite={handleBulkFavorite}
+                onBulkAssignCategory={handleBulkAssignCategory}
                 language={language}
               />
 
@@ -505,6 +541,7 @@ export const App: React.FC = () => {
                 onRename={handleRename}
                 onReorder={handleReorder}
                 onNumberEdit={handleNumberEdit}
+                onAssignCategory={handleAssignCategory}
                 language={language}
               />
             </div>
@@ -531,7 +568,21 @@ export const App: React.FC = () => {
         onClose={() => setIsFavModalOpen(false)}
         channels={channels}
         favoriteLists={favoriteLists}
-        onUpdateFavorites={setFavoriteLists}
+        onUpdateFavorites={(newLists) => {
+          saveUndoSnapshot(channels);
+          setFavoriteLists(newLists);
+
+          // Sync channel favs array
+          setChannels((prev) =>
+            prev.map((c) => {
+              const favs: number[] = [];
+              newLists.forEach((srvIds, favNum) => {
+                if (srvIds.includes(c.srvId)) favs.push(favNum);
+              });
+              return { ...c, favs };
+            })
+          );
+        }}
         language={language}
       />
 
@@ -548,14 +599,6 @@ export const App: React.FC = () => {
         language={language}
       />
 
-      <ExportSuccessModal
-        isOpen={isExportSuccessOpen}
-        onClose={() => setIsExportSuccessOpen(false)}
-        downloadUrl={exportDownloadUrl}
-        filename={extractedPackage?.filename || 'Channel_list_T-KTS2UABC-2740.1.zip'}
-        language={language}
-      />
-
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
@@ -568,6 +611,20 @@ export const App: React.FC = () => {
         onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         language={language}
         onToggleLanguage={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+      />
+
+      <ExportSuccessModal
+        isOpen={isExportSuccessOpen}
+        onClose={() => {
+          setIsExportSuccessOpen(false);
+          if (exportDownloadUrl) {
+            URL.revokeObjectURL(exportDownloadUrl);
+            setExportDownloadUrl(null);
+          }
+        }}
+        downloadUrl={exportDownloadUrl}
+        filename={extractedPackage?.filename || 'Channel_list.zip'}
+        language={language}
       />
     </div>
   );

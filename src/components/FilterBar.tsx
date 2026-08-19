@@ -1,12 +1,14 @@
 import React from 'react';
-import { Search, X, Lock, Unlock, Eye, EyeOff, ArrowUpDown } from 'lucide-react';
+import { Search, X, Lock, Unlock, Eye, EyeOff, ArrowUpDown, Layers } from 'lucide-react';
 import { ChannelFilter, Satellite } from '../types/channel';
 import { translations } from '../utils/i18n';
+import { PREDEFINED_CATEGORIES } from '../types/category';
 
 interface FilterBarProps {
   filter: ChannelFilter;
   onFilterChange: (filter: ChannelFilter) => void;
   satellites: Satellite[];
+  categories: string[];
   selectedCount: number;
   totalFilteredCount: number;
   totalCount: number;
@@ -17,6 +19,7 @@ interface FilterBarProps {
   onBulkHide: (hide: boolean) => void;
   onBulkLock: (lock: boolean) => void;
   onBulkFavorite: (fav: number) => void;
+  onBulkAssignCategory?: (categoryName: string) => void;
   language: 'en' | 'ar';
 }
 
@@ -24,6 +27,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   filter,
   onFilterChange,
   satellites,
+  categories,
   selectedCount,
   totalFilteredCount,
   totalCount,
@@ -34,6 +38,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onBulkHide,
   onBulkLock,
   onBulkFavorite,
+  onBulkAssignCategory,
   language,
 }) => {
   const t = translations[language];
@@ -118,6 +123,23 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </button>
           ))}
         </div>
+
+        {/* Categories Filter Dropdown */}
+        <select
+          style={{ ...selectStyle, color: '#c084fc' }}
+          value={filter.categoryFilter}
+          onChange={(e) => onFilterChange({ ...filter, categoryFilter: e.target.value })}
+        >
+          <option value="all">📂 {language === 'ar' ? 'جميع الفئات' : 'All Categories'}</option>
+          {categories.length > 0 && (
+            <option value="uncategorized">📁 {language === 'ar' ? 'بدون فئة' : 'Uncategorized'}</option>
+          )}
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              📁 {cat}
+            </option>
+          ))}
+        </select>
 
         {/* Encryption */}
         <select
@@ -216,6 +238,30 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <option value="" disabled>⭐ {t.bulkFav}…</option>
               {[1,2,3,4,5].map((n) => <option key={n} value={n}>⭐ Add to Fav {n}</option>)}
             </select>
+
+            {/* Bulk Assign Category */}
+            {onBulkAssignCategory && (
+              <select
+                onChange={(e) => {
+                  if (e.target.value) {
+                    onBulkAssignCategory(e.target.value === '__none__' ? '' : e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                defaultValue=""
+                style={{ ...selectStyle, padding: '5px 10px', fontSize: '12px', color: '#c084fc' }}
+              >
+                <option value="" disabled>
+                  📂 {language === 'ar' ? 'تعيين فئة...' : 'Assign Category...'}
+                </option>
+                <option value="__none__">🚫 {language === 'ar' ? 'إزالة الفئة' : 'Remove Category'}</option>
+                {PREDEFINED_CATEGORIES.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.icon} {language === 'ar' ? cat.nameAr : cat.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
       )}

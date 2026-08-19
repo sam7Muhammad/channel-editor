@@ -1,5 +1,6 @@
 import { Channel, AIOrganizeResult } from '../types/channel';
 import { AIOrganizeOptions } from '../components/AIOrganizeModal';
+import { PREDEFINED_CATEGORIES, CategoryDefinition } from '../types/category';
 
 export interface OrganizeProgressCallback {
   (stage: string, percent: number): void;
@@ -7,7 +8,7 @@ export interface OrganizeProgressCallback {
 
 export class AIOrganizeService {
   /**
-   * Run Smart Organization with User Configured Options and Custom Prompt
+   * Run Smart Organization with User Configured Options, Categories & Custom Prompt
    */
   static async organizeWithOptions(
     channels: Channel[],
@@ -19,7 +20,7 @@ export class AIOrganizeService {
       if (!apiKey || apiKey.trim() === '') {
         throw new Error('API key is required for Google Gemini AI mode.');
       }
-      onProgress?.('Sending custom instructions & channels to Gemini 2.0 Flash...', 30);
+      onProgress?.('Sending custom instructions & channels to Gemini AI...', 30);
       return await this.organizeWithGemini(channels, options, apiKey, onProgress);
     }
 
@@ -31,7 +32,7 @@ export class AIOrganizeService {
   }
 
   /**
-   * Gemini 2.0 Flash with Custom Prompt Injection & Confirmation Message
+   * Gemini Flash with Custom Categories, Prompt Injection & Confirmation Message
    */
   private static async organizeWithGemini(
     channels: Channel[],
@@ -50,8 +51,12 @@ export class AIOrganizeService {
       scrambled: c.scrambled,
     }));
 
+    const activeCats = (options.activeCategories || PREDEFINED_CATEGORIES)
+      .filter((c) => c.enabled)
+      .map((c) => `${c.icon} ${c.name}`);
+
     const customUserInstruction = options.customPrompt?.trim()
-      ? `\n\nCRITICAL USER CUSTOM INSTRUCTIONS (HIGHEST PRIORITY):\n"""\n${options.customPrompt.trim()}\n"""\nYOU MUST OBEY THIS INSTRUCTION FULLY: If the user requests custom categories (e.g. "English Movies"), create that exact category with the requested name, assign requested channels (e.g. MBC 2, Mix) to it, and put it in the exact order requested (e.g. first). Also include a clear, friendly "aiResponse" text message confirming exactly how you handled the user's prompt!`
+      ? `\n\nCRITICAL USER CUSTOM INSTRUCTIONS (HIGHEST PRIORITY):\n"""\n${options.customPrompt.trim()}\n"""\nYOU MUST OBEY THIS INSTRUCTION FULLY: If the user requests custom categories or reordering, create that exact category with the requested name, assign requested channels to it, and put it in the exact order requested. Also include a clear, friendly "aiResponse" text message confirming exactly how you handled the user's prompt!`
       : '';
 
     const systemInstruction = `
@@ -62,12 +67,13 @@ Your tasks:
 1. CUSTOM INSTRUCTIONS: Always follow the user's custom instructions first and foremost!${customUserInstruction}
 2. JUNK DETECTION: Identify placeholder, dead feeds, "Test", "spare", or zero signal channels.
 3. FREQUENCY DEDUPLICATION: For channels broadcasting on multiple frequencies, pick the "keepSrvId" with highest signal quality/score, and put redundant frequencies into "hideSrvIds".
-4. CATEGORIZATION & ORDERING: Group valid channels into ordered categories.
+4. CATEGORIZATION & ORDERING: Group valid channels into ordered categories. Target categories in order:
+${activeCats.map((c, i) => `${i + 1}. ${c}`).join('\n')}
 5. CONFIRMATION MESSAGE: In "aiResponse", write a concise confirmation message explaining what was customized.
 
 Return strictly valid JSON matching:
 {
-  "aiResponse": "I understood your request: created 'English Movies' category at position #1 with MBC 2 and Mix channels, resolved duplicate frequencies, and sorted the rest into logical categories.",
+  "aiResponse": "I understood your request: organized channels into selected categories, resolved duplicate frequencies, and sorted the rest into logical categories.",
   "junkSrvIds": ["id1", "id2"],
   "duplicateGroups": [
     {
@@ -89,7 +95,7 @@ Return strictly valid JSON matching:
 
     onProgress?.('AI analyzing channel preferences...', 65);
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey.trim()}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`;
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -126,7 +132,7 @@ Return strictly valid JSON matching:
   }
 
   /**
-   * Advanced In-Browser NLP Rule Engine with Conversational Confirmation Message
+   * Advanced In-Browser NLP Rule Engine with Predefined Categories & Custom Presets
    */
   static organizeOfflineRuleBased(
     channels: Channel[],
@@ -141,6 +147,8 @@ Return strictly valid JSON matching:
       groupRadioAtEnd: true,
       renumberSequential: true,
       customPrompt: '',
+      engineMode: 'local',
+      activeCategories: PREDEFINED_CATEGORIES,
       ...options,
     };
 
@@ -250,8 +258,8 @@ Return strictly valid JSON matching:
       });
     }
 
-    // 3. Natural Language Processing for Custom Categories from Prompt
-    const customCategories: Array<{
+    // 3. Custom Categories from Prompt
+    const customPromptCategories: Array<{
       categoryName: string;
       categoryIcon: string;
       srvIds: string[];
@@ -263,7 +271,6 @@ Return strictly valid JSON matching:
     let customCategoryChannelsCount = 0;
 
     if (promptText) {
-      // Pattern 1: "create <name> category" or "make <name> category" or "انشئ فئة/قسم <اسم>"
       const createCatMatch =
         promptLower.match(/(?:create|make|add)\s+([a-z0-9\s&]+?)\s+category/i) ||
         promptLower.match(/(?:انشئ|أنشئ|اصنع|اعمل)\s+(?:فئة|قسم|مجموعة)\s+([^\s,.]+)/i);
@@ -276,17 +283,11 @@ Return strictly valid JSON matching:
           .join(' ');
 
         customCategoryCreatedName = catName;
-
         const isFirst = /first|top|#1|بداية|الأول|الاولى|المقدمة/i.test(promptLower);
 
-        // Find channels specifically mentioned in the prompt or matching the custom category name
         const matchedIds: string[] = [];
-
-        // Check each active channel if its name is mentioned in the prompt
         for (const ch of activeChannels) {
           const chClean = ch.srvName.toLowerCase().replace(/[^a-z0-9]/g, '');
-          
-          // Check explicit mentions in prompt (like "mbc2", "mix", "fox", etc.)
           const words = promptLower.split(/[\s,]+/);
           let directlyMentioned = false;
           for (const w of words) {
@@ -297,12 +298,11 @@ Return strictly valid JSON matching:
             }
           }
 
-          // Check if channel belongs to the thematic name (e.g. "English Movies")
           const isThematicMatch =
             rawCatName.includes('movie') || rawCatName.includes('cinema') || rawCatName.includes('افلام')
               ? /mbc\s*2|mbc\s*max|mbc\s*action|mix|fox\s*movies|dubai\s*one|cima|cinema/i.test(ch.srvName)
               : rawCatName.includes('sport') || rawCatName.includes('رياض')
-              ? /sport|kass|bein|ontime|ad\s*sport/i.test(ch.srvName)
+              ? /sport|kass|bein|ontime|ssc|ad\s*sport/i.test(ch.srvName)
               : rawCatName.includes('kid') || rawCatName.includes('طفل') || rawCatName.includes('كرتون')
               ? /spacetoon|cartoon|kids|toyor|majid|mbc\s*3/i.test(ch.srvName)
               : false;
@@ -315,7 +315,7 @@ Return strictly valid JSON matching:
 
         if (matchedIds.length > 0) {
           customCategoryChannelsCount = matchedIds.length;
-          customCategories.push({
+          customPromptCategories.push({
             categoryName: catName,
             categoryIcon: '🎬',
             srvIds: matchedIds,
@@ -325,88 +325,13 @@ Return strictly valid JSON matching:
       }
     }
 
-    // 4. Default Standard Categories
-    let categoryRules: Array<{
-      name: string;
-      icon: string;
-      keywords: RegExp;
-      typeCheck?: (c: Channel) => boolean;
-    }> = [
-      {
-        name: 'Religious & Quran',
-        icon: '📖',
-        keywords:
-          /quran|sunnah|resalah|iqraa|majd|huda|zad|rahma|nas|fatwa|islam|kaaba|makkah|madinah|haqiqa|istiqama|karam|praise|bible|church/i,
-      },
-      {
-        name: 'Kids & Cartoons',
-        icon: '👶',
-        keywords:
-          /spacetoon|cartoon|kids|toyor|karameesh|majid|baraem|jeem|mbc\s*3|children|baby|hodhod/i,
-      },
-      {
-        name: 'News & Info',
-        icon: '📰',
-        keywords:
-          /jazeera|arabiya|hadath|news|akhbar|ekhbaria|sky|bbc|cnn|rt|france|cnbc|bloomberg|syria\s*news|ghad|sharqiya|nrt|rudaw/i,
-      },
-      {
-        name: 'Cinema & Movies',
-        icon: '🎬',
-        keywords:
-          /cinema|cima|movie|movies|film|aflam|mbc\s*2|mbc\s*max|mbc\s*action|mbc\s*bollywood|zee\s*aflam|rotana\s*cinema|fox\s*movies/i,
-      },
-      {
-        name: 'Drama & Series',
-        icon: '🎭',
-        keywords:
-          /drama|mosalsalat|zee\s*alwan|mbc\s*drama|mbc\s*masr|mbc\s*iraq|rotana\s*drama|panorama\s*drama|lana|dolly|remas|alwan/i,
-      },
-      {
-        name: 'Sports',
-        icon: '⚽',
-        keywords:
-          /sport|sports|kass|bein|arryadia|on\s*time|dubai\s*sport|ad\s*sport|riyadiah|football|match/i,
-      },
-      {
-        name: 'Documentary & Nature',
-        icon: '🌍',
-        keywords: /doc|documentary|wathaeqya|nat\s*geo|geographic|discovery|history|science/i,
-      },
-      {
-        name: 'General Entertainment',
-        icon: '⭐',
-        keywords:
-          /mbc\s*1|mbc\s*4|mbc\s*5|dubai\s*one|ro'?ya|amman|lbc|mtv|aljadeed|watan|al\s*sumaria|al\s*hayah|dmc|cbc|on\s*e|mix/i,
-      },
-      {
-        name: 'Music & Songs',
-        icon: '🎵',
-        keywords: /music|tarab|aghani|mazzika|arabica|rotana\s*music|rotana\s*clip|clip|melody/i,
-      },
-      {
-        name: 'Radio Stations',
-        icon: '📻',
-        keywords: /radio|fm|sawt|idha'?a/i,
-        typeCheck: (c) => c.srvType === 2,
-      },
-    ];
-
-    // Reorder default categories if user prompt mentions priority
-    if (promptLower.includes('sport') || promptLower.includes('رياض')) {
-      const sportsRule = categoryRules.find((r) => r.name === 'Sports');
-      if (sportsRule) {
-        categoryRules = [sportsRule, ...categoryRules.filter((r) => r.name !== 'Sports')];
-      }
-    } else if (promptLower.includes('kid') || promptLower.includes('أطفال') || promptLower.includes('كرتون')) {
-      const kidsRule = categoryRules.find((r) => r.name === 'Kids & Cartoons');
-      if (kidsRule) {
-        categoryRules = [kidsRule, ...categoryRules.filter((r) => r.name !== 'Kids & Cartoons')];
-      }
-    }
+    // 4. Predefined & Active Categories
+    const configuredCategories: CategoryDefinition[] = (opts.activeCategories || PREDEFINED_CATEGORIES).filter(
+      (c) => c.enabled
+    );
 
     const categoryBuckets = new Map<string, string[]>();
-    categoryRules.forEach((r) => categoryBuckets.set(r.name, []));
+    configuredCategories.forEach((r) => categoryBuckets.set(r.name, []));
     categoryBuckets.set('Regional & General', []);
 
     for (const ch of activeChannels) {
@@ -414,18 +339,22 @@ Return strictly valid JSON matching:
 
       let matched = false;
 
+      // Check radio stations
       if (opts.groupRadioAtEnd && ch.srvType === 2) {
-        categoryBuckets.get('Radio Stations')!.push(ch.srvId);
-        continue;
+        const radioCat = configuredCategories.find((c) => c.id === 'radio' || c.name.toLowerCase().includes('radio'));
+        if (radioCat) {
+          categoryBuckets.get(radioCat.name)!.push(ch.srvId);
+          continue;
+        }
       }
 
-      for (const rule of categoryRules) {
+      for (const rule of configuredCategories) {
         if (rule.typeCheck && rule.typeCheck(ch)) {
           categoryBuckets.get(rule.name)!.push(ch.srvId);
           matched = true;
           break;
         }
-        if (rule.keywords.test(ch.srvName)) {
+        if (rule.keywords && rule.keywords.test(ch.srvName)) {
           categoryBuckets.get(rule.name)!.push(ch.srvId);
           matched = true;
           break;
@@ -438,7 +367,7 @@ Return strictly valid JSON matching:
     }
 
     // Build categories array
-    const defaultCategories: AIOrganizeResult['categories'] = categoryRules.map((r) => ({
+    const defaultCategories: AIOrganizeResult['categories'] = configuredCategories.map((r) => ({
       categoryName: r.name,
       categoryIcon: r.icon,
       srvIds: categoryBuckets.get(r.name) || [],
@@ -450,8 +379,8 @@ Return strictly valid JSON matching:
       srvIds: categoryBuckets.get('Regional & General') || [],
     });
 
-    const firstCustom = customCategories.filter((c) => c.isFirst);
-    const regularCustom = customCategories.filter((c) => !c.isFirst);
+    const firstCustom = customPromptCategories.filter((c) => c.isFirst);
+    const regularCustom = customPromptCategories.filter((c) => !c.isFirst);
 
     const mergedCategories: AIOrganizeResult['categories'] = [
       ...firstCustom.map((c) => ({
@@ -491,7 +420,7 @@ Return strictly valid JSON matching:
         parts.push(`Got your prompt: "${promptText}".`);
       }
       if (customCategoryCreatedName) {
-        parts.push(`✅ Created custom category "${customCategoryCreatedName}" at position #1 with ${customCategoryChannelsCount} matching channels (including MBC 2, Mix, etc.).`);
+        parts.push(`✅ Created custom category "${customCategoryCreatedName}" at position #1 with ${customCategoryChannelsCount} matching channels.`);
       }
       if (duplicateHiddenIds.size > 0) {
         parts.push(`🔄 Resolved ${duplicateHiddenIds.size} duplicate frequencies by keeping the best signal transponder.`);
