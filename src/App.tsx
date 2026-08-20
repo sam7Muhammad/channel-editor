@@ -546,7 +546,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col w-full min-h-[calc(100vh-80px)]">
+      <main className="flex-1 flex flex-col w-full min-h-[calc(100vh-80px)] px-4 sm:px-8 lg:px-12 py-6">
         {channels.length === 0 ? (
           <FileUploader
             onFileSelected={handleFileSelected}
@@ -554,9 +554,9 @@ export const App: React.FC = () => {
             language={language}
           />
         ) : (
-          <div className="flex-1 flex flex-col w-full px-6 sm:px-12 lg:px-16 py-6 space-y-4">
+          <div className="flex-1 flex flex-col w-full max-w-[1600px] mx-auto space-y-4">
             {/* Filter & Multi-Select Toolbar + Channel List */}
-            <div className="flex-1 flex flex-col w-full rounded-2xl overflow-hidden glass border border-slate-800 shadow-2xl">
+            <div className="flex-1 flex flex-col w-full rounded-2xl overflow-hidden glass border border-slate-700/80 shadow-2xl bg-slate-900/60 ring-1 ring-slate-700/50">
               <FilterBar
                 filter={filter}
                 onFilterChange={setFilter}

@@ -55,7 +55,8 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="px-6 sm:px-12 lg:px-16 py-4 flex items-center justify-between border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-page)' }}>
+    <header className="px-4 sm:px-8 lg:px-12 py-3.5 border-b w-full" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-page)' }}>
+      <div className="w-full max-w-[1600px] mx-auto flex items-center justify-between">
       
       {/* Hidden File Input for Direct Browse */}
       <input
@@ -176,6 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       </div>
 
+    </div>
     </header>
   );
 };
