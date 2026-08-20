@@ -100,8 +100,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
 
         {/* Channel count */}
-        <span className="flex-shrink-0 text-sm sm:text-base font-mono whitespace-nowrap px-3 py-2 rounded-xl bg-slate-900/60 border border-slate-800" style={{ color: 'var(--text-secondary)' }}>
-          <span className="text-cyan-400 font-bold">{totalFilteredCount}</span>
+        <span
+          className="flex-shrink-0 text-sm sm:text-base font-mono whitespace-nowrap px-3.5 py-1.5 rounded-xl border font-bold"
+          style={{
+            backgroundColor: 'var(--bg-tertiary)',
+            borderColor: 'var(--border-color)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <span className="text-cyan-600 dark:text-cyan-400">{totalFilteredCount}</span>
           <span> / {totalCount}</span>
         </span>
       </div>

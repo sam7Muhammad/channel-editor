@@ -139,7 +139,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
             onBlur={handleSaveNumber}
             autoFocus
             min={1}
-            className="w-full max-w-[60px] bg-slate-800 text-cyan-400 font-mono font-bold text-sm px-1.5 py-0.5 rounded text-right focus:outline-none focus:ring-1 focus:ring-cyan-400"
+            className="w-full max-w-[60px] bg-slate-100 dark:bg-slate-800 text-cyan-700 dark:text-cyan-400 font-mono font-bold text-sm px-1.5 py-0.5 rounded text-right focus:outline-none focus:ring-1 focus:ring-cyan-500 border border-slate-300 dark:border-slate-700"
           />
         ) : (
           <div 
@@ -147,7 +147,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
               setEditNumber(channel.major.toString());
               setIsEditingNumber(true);
             }}
-            className="font-mono font-bold text-sm sm:text-base text-cyan-400 cursor-pointer hover:bg-slate-700/50 rounded px-1.5 py-0.5"
+            className="font-mono font-bold text-sm sm:text-base text-cyan-600 dark:text-cyan-400 cursor-pointer hover:bg-slate-200/60 dark:hover:bg-slate-700/50 rounded px-1.5 py-0.5"
             title="Click to edit channel number"
           >
             #{channel.major}

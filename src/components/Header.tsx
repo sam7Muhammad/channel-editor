@@ -140,7 +140,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Help & Guide"
             aria-label="Help"
           >
-            <HelpCircle className="w-5 h-5 text-slate-300 hover:text-white" />
+            <HelpCircle className="w-5 h-5" />
           </button>
 
           <button
@@ -149,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Settings & API Key"
             aria-label="Settings"
           >
-            <Settings className="w-5 h-5 text-slate-300 hover:text-white" />
+            <Settings className="w-5 h-5" />
           </button>
 
           <button
@@ -161,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
             {theme === 'dark' ? (
               <Sun className="w-5 h-5 text-amber-400" />
             ) : (
-              <Moon className="w-5 h-5 text-blue-500" />
+              <Moon className="w-5 h-5 text-blue-600" />
             )}
           </button>
 
@@ -171,7 +171,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Change language (English / العربية)"
             aria-label="Language switch"
           >
-            <Languages className="w-5 h-5 text-slate-300 hover:text-white" />
+            <Languages className="w-5 h-5" />
           </button>
         </div>
 

@@ -6,7 +6,7 @@
   --font-arabic: 'Tajawal', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', "SFMono-Regular", Consolas, Menlo, monospace;
 
-  /* Sleek Minimal Palette */
+  /* Sleek Minimal Dark Palette */
   --bg-page: #0A0D12;
   --bg-primary: #0A0D12;
   --bg-secondary: #12161D;
@@ -32,6 +32,7 @@
 }
 
 [data-theme='light'] {
+  /* Crisp Modern Light Palette */
   --bg-page: #F8FAFC;
   --bg-primary: #F8FAFC;
   --bg-secondary: #FFFFFF;
@@ -46,7 +47,7 @@
 
   --text-primary: #0F172A;
   --text-secondary: #475569;
-  --text-muted: #94A3B8;
+  --text-muted: #64748B;
   --accent-blue: #2563EB;
 }
 
@@ -120,13 +121,14 @@ body[dir="rtl"] {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .step-card.main {
   border: 2px solid var(--accent-blue);
-  background: #1A202A;
-  box-shadow: 0 10px 40px -10px rgba(76, 130, 251, 0.22);
+  background: var(--bg-card);
+  box-shadow: 0 10px 40px -10px rgba(76, 130, 251, 0.18);
   padding: 36px 32px;
 }
 
@@ -139,8 +141,15 @@ body[dir="rtl"] {
   border-radius: 6px;
   margin-bottom: 14px;
   width: fit-content;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+[data-theme='dark'] .badge-tv {
   color: #9FE1CB;
   background: rgba(100, 217, 196, 0.12);
+  border: 1px solid rgba(100, 217, 196, 0.2);
 }
 
 .badge-app {
@@ -151,16 +160,24 @@ body[dir="rtl"] {
   border-radius: 6px;
   margin-bottom: 14px;
   width: fit-content;
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+[data-theme='dark'] .badge-app {
   color: #B5D4F4;
   background: rgba(76, 130, 251, 0.14);
+  border: 1px solid rgba(76, 130, 251, 0.2);
 }
 
 .step-num {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #232933;
-  color: #F1F4F8;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   font-size: 13px;
   font-weight: 700;
   display: flex;
@@ -171,7 +188,8 @@ body[dir="rtl"] {
 
 .step-num.on {
   background: var(--accent-blue);
-  color: #042C53;
+  color: #ffffff;
+  border-color: transparent;
 }
 
 /* Scoped internal element spacing for step cards */
@@ -182,10 +200,10 @@ body[dir="rtl"] {
 }
 
 .step-card .step-path-box {
-  padding: 20px 18px;
-  background-color: #0E1218;
-  border: 1px solid #232933;
-  border-radius: 16px;
+  padding: 18px 16px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
   margin-top: 14px;
 }
 
@@ -193,20 +211,30 @@ body[dir="rtl"] {
   padding: 6px 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
-  color: #8D96A8;
+  color: var(--text-secondary);
 }
 
 .step-card .step-path-item.active {
-  color: #67e8f9;
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+[data-theme='light'] .step-card .step-path-item.active {
+  color: #0284c7;
 }
 
 .step-card .step-path-item.active-import {
-  color: #6ee7b7;
+  color: var(--accent-emerald);
+  font-weight: 700;
+}
+
+[data-theme='light'] .step-card .step-path-item.active-import {
+  color: #059669;
 }
 
 /* Dropzone */
 .clean-dropzone {
-  border: 1.5px dashed #2F3742;
+  border: 1.5px dashed var(--border-color);
   border-radius: 16px;
   padding: 36px 24px;
   margin: 10px 0;
@@ -217,30 +245,31 @@ body[dir="rtl"] {
   justify-content: center;
   text-align: center;
   cursor: pointer;
-  background: rgba(14, 18, 24, 0.5);
+  background: var(--bg-page);
   transition: border-color .2s ease, background .2s ease, transform .2s ease;
 }
 
 .clean-dropzone:hover {
   border-color: var(--accent-blue);
-  background: rgba(76, 130, 251, 0.08);
+  background: rgba(76, 130, 251, 0.05);
 }
 
 .clean-browse-btn {
-  background: #171D26;
-  border: 1px solid #2F3742;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
   font-size: 14px;
   font-weight: 600;
   padding: 10px 24px;
   border-radius: 10px;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   transition: background .15s ease, border-color .15s ease;
 }
 
 .clean-browse-btn:hover {
-  background: #1F2633;
-  border-color: #4C82FB;
+  background: var(--bg-card-hover);
+  border-color: var(--accent-blue);
 }
 
 /* Toggle Switch */
@@ -263,7 +292,7 @@ body[dir="rtl"] {
 .clean-toggle .track {
   position: absolute;
   inset: 0;
-  background: #2F3742;
+  background: var(--border-hover);
   border-radius: 9999px;
   pointer-events: none;
   transition: background .15s;
@@ -275,8 +304,9 @@ body[dir="rtl"] {
   left: 2px;
   width: 16px;
   height: 16px;
-  background: #F1F4F8;
+  background: #ffffff;
   border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   pointer-events: none;
   transition: transform .15s;
 }
@@ -368,18 +398,36 @@ body[dir="rtl"] {
 }
 
 .badge-hd {
+  background: rgba(6, 182, 212, 0.15);
+  color: #0891b2;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+[data-theme='dark'] .badge-hd {
   background: rgba(6, 182, 212, 0.18);
   color: #22d3ee;
   border: 1px solid rgba(6, 182, 212, 0.35);
 }
 
 .badge-fav {
+  background: rgba(234, 179, 8, 0.15);
+  color: #b45309;
+  border: 1px solid rgba(234, 179, 8, 0.35);
+}
+
+[data-theme='dark'] .badge-fav {
   background: rgba(234, 179, 8, 0.2);
   color: #fde047;
   border: 1px solid rgba(234, 179, 8, 0.4);
 }
 
 .badge-scrambled {
+  background: rgba(244, 63, 94, 0.15);
+  color: #e11d48;
+  border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+[data-theme='dark'] .badge-scrambled {
   background: rgba(244, 63, 94, 0.15);
   color: #fda4af;
   border: 1px solid rgba(244, 63, 94, 0.3);
@@ -389,10 +437,14 @@ body[dir="rtl"] {
 .signal-meter {
   width: 50px;
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 3px;
   overflow: hidden;
   position: relative;
+}
+
+[data-theme='dark'] .signal-meter {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .signal-fill {

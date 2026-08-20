@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { UploadCloud, ChevronRight, ChevronDown, Route, ShieldCheck, Sparkles } from 'lucide-react';
+import { UploadCloud, ChevronRight, ChevronDown, Route, ShieldCheck } from 'lucide-react';
 import { translations } from '../utils/i18n';
 
 interface FileUploaderProps {
@@ -18,7 +18,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const [autoCleanDuplicates, setAutoCleanDuplicates] = useState(true);
   const [isExportPathExpanded, setIsExportPathExpanded] = useState(true);
   const [isImportPathExpanded, setIsImportPathExpanded] = useState(true);
-  const [hasInitializedState, setHasInitializedState] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -32,21 +31,17 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     }
 
     if (isMobile) {
-      // Mobile always starts collapsed regardless of memory
       setIsExportPathExpanded(false);
       setIsImportPathExpanded(false);
     } else {
       if (!hasVisited) {
-        // First ever visit on desktop: expanded
         setIsExportPathExpanded(true);
         setIsImportPathExpanded(true);
       } else {
-        // Returning visitor: collapsed by default, UNLESS explicitly saved as expanded
         setIsExportPathExpanded(exportState === 'expanded');
         setIsImportPathExpanded(importState === 'expanded');
       }
     }
-    setHasInitializedState(true);
   }, []);
 
   const toggleExportPath = () => {
@@ -87,34 +82,23 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     }
   };
 
-  const handleLoadSample = async () => {
-    try {
-      const res = await fetch('/sample_channel_list.zip');
-      if (!res.ok) throw new Error('Failed to load sample file');
-      const blob = await res.blob();
-      onFileSelected(blob, 'Channel_list_T-KTS2UABC-2740.1.zip');
-    } catch {
-      alert('Could not load sample file. Please select your ZIP file manually.');
-    }
-  };
-
   return (
     <div
       className="w-full flex-1 flex flex-col justify-start animate-fade-in"
-      style={{ padding: '16px clamp(24px, 4vw, 64px) 48px' }}
+      style={{ padding: '20px clamp(16px, 4vw, 48px) 48px' }}
     >
       
       {/* ── Page Heading ── */}
-      <div className="mb-4 mt-2">
+      <div className="mb-6 mt-1">
         <h1
-          className="font-bold text-white mb-2.5 tracking-tight"
-          style={{ fontSize: 'clamp(24px, 2.6vw, 34px)', lineHeight: 1.25 }}
+          className="font-bold mb-2 tracking-tight"
+          style={{ fontSize: 'clamp(24px, 2.6vw, 34px)', lineHeight: 1.25, color: 'var(--text-primary)' }}
         >
           {language === 'ar' ? 'رتّب ونظّف قائمة قنواتك' : 'Clean up your channel list'}
         </h1>
         <p
-          className="leading-relaxed max-w-3xl"
-          style={{ fontSize: 'clamp(14px, 1.15vw, 16px)', color: '#8D96A8' }}
+          className="leading-relaxed max-w-3xl font-medium"
+          style={{ fontSize: 'clamp(14px, 1.15vw, 16px)', color: 'var(--text-secondary)' }}
         >
           {language === 'ar'
             ? 'انقل قائمة القنوات من شاشتك عبر الفلاشة، رتّب واحذف الترددات المكررة، ثم أعدها للشاشة.'
@@ -126,42 +110,43 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       <div className="steps-row items-stretch">
 
         {/* ── Step 1: On your TV ── */}
-        <div className="step-card flex flex-col justify-start space-y-7">
+        <div className="step-card flex flex-col justify-start space-y-6">
           
           {/* Header & Description */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <span className="badge-tv text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
             <div className="flex items-center gap-3 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">1</span>
-              <span className="font-semibold text-xl text-[#F1F4F8]">
+              <span className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>
                 {language === 'ar' ? 'تصدير القائمة' : 'Export list'}
               </span>
             </div>
 
-            <p className="text-sm text-[#8D96A8] leading-relaxed pt-2">
+            <p className="text-sm leading-relaxed pt-1" style={{ color: 'var(--text-secondary)' }}>
               {language === 'ar'
                 ? 'احفظ القائمة على الفلاشة من إعدادات البث في التلفزيون.'
                 : 'Plug in a USB drive and export your channel list from TV settings.'}
             </p>
           </div>
 
-          {/* Dedicated Padded Instruction Box */}
-          <div className="step-path-box shadow-inner">
+          {/* Dedicated Instruction Box */}
+          <div className="step-path-box shadow-sm">
             <button 
-              className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              className="flex items-center gap-2 text-sm font-semibold w-full text-left rtl:text-right focus:outline-none rounded cursor-pointer"
+              style={{ color: 'var(--text-primary)' }}
               onClick={toggleExportPath}
               aria-expanded={isExportPathExpanded}
               aria-controls="export-path-list"
             >
-              <Route className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span>{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
-              <ChevronDown className={`w-4 h-4 ml-auto shrink-0 transition-transform ${isExportPathExpanded ? 'rotate-180' : ''}`} />
+              <Route className="w-4 h-4 text-cyan-500 shrink-0" />
+              <span className="flex-1">{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
+              <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isExportPathExpanded ? 'rotate-180' : ''}`} style={{ color: 'var(--text-muted)' }} />
             </button>
 
-            {/* Spacious Step Pills */}
+            {/* Step Pills */}
             <div 
               id="export-path-list"
               className={`overflow-hidden transition-all duration-300 ${isExportPathExpanded ? 'max-h-64 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}
@@ -185,7 +170,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* ── Chevron 1 ── */}
-        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] px-2 my-auto">
+        <div className="hidden min-[961px]:flex items-center justify-center px-2 my-auto" style={{ color: 'var(--border-hover)' }}>
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
@@ -193,26 +178,26 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         <div className="step-card main flex flex-col">
 
           {/* Header */}
-          <div className="mb-4">
+          <div className="mb-3">
             <span className="badge-app text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
             </span>
-            <div className="flex items-center gap-3 pt-3">
+            <div className="flex items-center gap-3 pt-2">
               <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
-              <span className="font-semibold text-xl text-[#F1F4F8]">
+              <span className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>
                 {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
               </span>
             </div>
           </div>
 
-          {/* Dropzone: grow fills remaining space, content is centered inside */}
+          {/* Dropzone */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
             className={`clean-dropzone grow pb-6 cursor-pointer transition-all ${
-              isDragging ? 'border-[#4C82FB] bg-[rgba(76,130,251,0.14)] scale-[1.01]' : 'hover:border-[#4C82FB]'
+              isDragging ? 'border-[#4C82FB] bg-blue-500/10 scale-[1.01]' : ''
             }`}
           >
             <input
@@ -223,15 +208,15 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               className="hidden"
             />
 
-            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-[#4C82FB] shadow-inner mb-3">
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-3">
               <UploadCloud className="w-7 h-7" />
             </div>
 
             <div className="space-y-1 mb-4">
-              <p className="font-bold text-base sm:text-lg text-[#F1F4F8]">
+              <p className="font-bold text-base sm:text-lg" style={{ color: 'var(--text-primary)' }}>
                 {language === 'ar' ? 'اسحب وأفلت ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
               </p>
-              <p className="text-xs sm:text-sm text-[#8D96A8]">
+              <p className="text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {language === 'ar' ? 'أو اضغط لاختيار الملف من الفلاشة' : 'or click anywhere to browse from your USB'}
               </p>
             </div>
@@ -252,9 +237,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
 
           {/* Auto-clean toggle */}
-          <div>
+          <div className="pt-2">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-[#BAC4D6] font-medium">
+              <span className="text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
               </span>
               <label className="clean-toggle">
@@ -272,47 +257,48 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* ── Chevron 2 ── */}
-        <div className="hidden min-[961px]:flex items-center justify-center text-[#3A414D] px-2 my-auto">
+        <div className="hidden min-[961px]:flex items-center justify-center px-2 my-auto" style={{ color: 'var(--border-hover)' }}>
           <ChevronRight className="w-6 h-6 rtl:rotate-180" />
         </div>
 
         {/* ── Step 3: On your TV ── */}
-        <div className="step-card flex flex-col justify-start space-y-7">
+        <div className="step-card flex flex-col justify-start space-y-6">
           
           {/* Header & Description */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <span className="badge-tv text-xs font-semibold px-3 py-1">
               {language === 'ar' ? 'من الشاشة' : 'On your TV'}
             </span>
 
             <div className="flex items-center gap-3 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">3</span>
-              <span className="font-semibold text-xl text-[#F1F4F8]">
+              <span className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>
                 {language === 'ar' ? 'استيراد للشاشة' : 'Import to TV'}
               </span>
             </div>
 
-            <p className="text-sm text-[#8D96A8] leading-relaxed pt-2">
+            <p className="text-sm leading-relaxed pt-1" style={{ color: 'var(--text-secondary)' }}>
               {language === 'ar'
                 ? 'ضع الفلاشة في التلفزيون واستورد القائمة الجديدة المنظمة.'
                 : 'Plug the USB back into your TV and import the clean channel list.'}
             </p>
           </div>
 
-          {/* Dedicated Padded Instruction Box */}
-          <div className="step-path-box shadow-inner">
+          {/* Dedicated Instruction Box */}
+          <div className="step-path-box shadow-sm">
             <button 
-              className="flex items-center gap-2 text-sm font-semibold text-[#BAC4D6] w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              className="flex items-center gap-2 text-sm font-semibold w-full text-left rtl:text-right focus:outline-none rounded cursor-pointer"
+              style={{ color: 'var(--text-primary)' }}
               onClick={toggleImportPath}
               aria-expanded={isImportPathExpanded}
               aria-controls="import-path-list"
             >
-              <Route className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
-              <ChevronDown className={`w-4 h-4 ml-auto shrink-0 transition-transform ${isImportPathExpanded ? 'rotate-180' : ''}`} />
+              <Route className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span className="flex-1">{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
+              <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isImportPathExpanded ? 'rotate-180' : ''}`} style={{ color: 'var(--text-muted)' }} />
             </button>
 
-            {/* Spacious Step Pills */}
+            {/* Step Pills */}
             <div 
               id="import-path-list"
               className={`overflow-hidden transition-all duration-300 ${isImportPathExpanded ? 'max-h-64 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}
@@ -338,8 +324,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       </div>
 
       {/* ── Footer ── */}
-      <div className="mt-8 flex items-center gap-2 text-xs sm:text-sm text-[#8D96A8]">
-        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+      <div className="mt-6 flex items-center gap-2 text-xs sm:text-sm" style={{ color: 'var(--text-secondary)' }}>
+        <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
         <span>
           {language === 'ar'
             ? 'تتم المعالجة بالكامل داخل متصفحك محلياً. لا يتم رفع أي بيانات إلى أي خادم.'
