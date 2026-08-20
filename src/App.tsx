@@ -12,6 +12,7 @@ import { FavoritesModal } from './components/FavoritesModal';
 import { MoveToModal } from './components/MoveToModal';
 import { SettingsModal } from './components/SettingsModal';
 import { ExportSuccessModal } from './components/ExportSuccessModal';
+import { Download, Sparkles, X } from 'lucide-react';
 import { StorageService } from './services/storageService';
 import { PREDEFINED_CATEGORIES } from './types/category';
 
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [undoStack, setUndoStack] = useState<Channel[][]>([]);
+  const [showExportReminder, setShowExportReminder] = useState<boolean>(false);
 
   // Theme & Language
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -99,6 +101,7 @@ export const App: React.FC = () => {
       if (!confirmLeave) return;
     }
     StorageService.clearSession();
+    setShowExportReminder(false);
     setChannels([]);
     setSatellites([]);
     setMetadata(undefined);
@@ -413,6 +416,7 @@ export const App: React.FC = () => {
 
     setChannels(finalChannels);
     setIsAiModalOpen(false);
+    setShowExportReminder(true);
 
     confetti({
       particleCount: 80,
@@ -682,6 +686,50 @@ export const App: React.FC = () => {
         filename={extractedPackage?.filename || 'Channel_list.zip'}
         language={language}
       />
+
+      {/* ── Floating Export Reminder Toast (Option 1) ── */}
+      {showExportReminder && channels.length > 0 && (
+        <aside
+          aria-label="Export notification"
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-4 p-4 rounded-2xl bg-slate-900/95 border border-cyan-500/40 shadow-2xl shadow-cyan-950/60 backdrop-blur-xl animate-fade-in max-w-md ring-1 ring-cyan-500/20"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30 flex-shrink-0">
+            <Sparkles className="w-5 h-5" />
+          </div>
+
+          <div className="flex-1 text-sm">
+            <h4 className="font-bold text-white tracking-tight flex items-center gap-1.5">
+              <span>{language === 'ar' ? 'تم ترتيب القنوات بنجاح!' : 'Channels Sorted & Ready!'}</span>
+            </h4>
+            <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
+              {language === 'ar' 
+                ? 'جاهز لنقل القنوات إلى الفلاشة وتحديث التلفزيون؟' 
+                : 'Ready to export to your USB drive for your TV?'}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={() => {
+                setShowExportReminder(false);
+                handleExport();
+              }}
+              className="btn btn-primary btn-sm font-bold flex items-center gap-1.5 shadow-md shadow-blue-500/25 px-3.5 py-2 cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>{language === 'ar' ? 'تصدير الآن' : 'Export USB'}</span>
+            </button>
+
+            <button
+              onClick={() => setShowExportReminder(false)}
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </aside>
+      )}
     </div>
   );
 };
