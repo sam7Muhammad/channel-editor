@@ -12,6 +12,7 @@ import { FavoritesModal } from './components/FavoritesModal';
 import { MoveToModal } from './components/MoveToModal';
 import { SettingsModal } from './components/SettingsModal';
 import { ExportSuccessModal } from './components/ExportSuccessModal';
+import { StorageService } from './services/storageService';
 import { PREDEFINED_CATEGORIES } from './types/category';
 
 export const App: React.FC = () => {
@@ -97,6 +98,7 @@ export const App: React.FC = () => {
       );
       if (!confirmLeave) return;
     }
+    StorageService.clearSession();
     setChannels([]);
     setSatellites([]);
     setMetadata(undefined);
@@ -107,9 +109,14 @@ export const App: React.FC = () => {
   }, [channels.length, language]);
 
   // Load and Unpack ZIP
-  const handleFileSelected = async (file: File | Blob, filename: string) => {
+  const handleFileSelected = useCallback(async (file: File | Blob, filename: string, persist: boolean = true) => {
     setIsLoading(true);
     try {
+      if (persist) {
+        const buffer = await file.arrayBuffer();
+        StorageService.saveSession(buffer, filename);
+      }
+
       const pkg = await SamsungZipService.extractZip(file, filename);
       const manager = new SamsungDbManager();
       await manager.loadDatabases({
@@ -146,7 +153,21 @@ export const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Auto-restore session on refresh
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const cached = await StorageService.loadSession();
+      if (cached && mounted && channels.length === 0) {
+        handleFileSelected(new Blob([cached.buffer]), cached.filename, false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [channels.length, handleFileSelected]);
 
   // Reorder single channel
   const handleReorder = (sourceIndex: number, destinationIndex: number) => {
