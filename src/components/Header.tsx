@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
         type="button"
         onClick={onGoHome}
         className="flex items-center gap-3.5 group text-left rtl:text-right cursor-pointer bg-transparent border-0 p-0 focus:outline-none"
-        title={language === 'ar' ? 'العودة للصفحة الرئيسية' : 'Return to Home / Upload page'}
+        title={t.returnHomeTooltip}
       >
         <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20 group-hover:scale-105 transition-all shadow-sm">
           <Tv className="w-5 h-5" />
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="hidden sm:flex items-center gap-2 text-xs font-mono pl-2 ml-2 border-l" style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
               <span className="text-cyan-400 font-semibold truncate max-w-[220px]">{filename}</span>
               <span>•</span>
-              <span className="text-emerald-400 font-bold">{channelCount} channels</span>
+              <span className="text-emerald-400 font-bold">{channelCount} {t.uploader.dropSubtitle.includes('قناة') ? 'قناة' : 'channels'}</span>
             </div>
           )}
         </div>
@@ -102,10 +102,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={handleBrowseClick}
               className="btn btn-secondary btn-sm gap-2 font-semibold"
-              title="Browse and load another channel list (.zip)"
+              title={t.loadNewFile}
             >
               <FolderOpen className="w-4 h-4 text-cyan-400" />
-              <span className="hidden sm:inline">{language === 'ar' ? 'فتح ملف آخر' : 'Load New File'}</span>
+              <span className="hidden sm:inline">{t.loadNewFile}</span>
             </button>
 
             {canUndo && (
@@ -135,9 +135,9 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Top Icons: Help, Settings, Theme Toggle, Language */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
-            onClick={() => alert(language === 'ar' ? 'قم بتصدير ملف القنوات من الشاشة عبر الفلاشة، ارفعه هنا لترتيبه، ثم أعد تصديره واستيراده على التلفزيون.' : 'Export your channel list from your TV via USB, upload it here to reorder and clean duplicates, then save it back to USB.')}
+            onClick={() => alert(t.helpAlert)}
             className="icon-btn p-2"
-            title="Help & Guide"
+            title={t.settingsModal.title}
             aria-label="Help"
           >
             <HelpCircle className="w-5 h-5" />

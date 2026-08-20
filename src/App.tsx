@@ -15,6 +15,7 @@ import { ExportSuccessModal } from './components/ExportSuccessModal';
 import { Download, Sparkles, X } from 'lucide-react';
 import { StorageService } from './services/storageService';
 import { PREDEFINED_CATEGORIES } from './types/category';
+import { translations } from './utils/i18n';
 
 export const App: React.FC = () => {
   // App State
@@ -38,6 +39,8 @@ export const App: React.FC = () => {
   const [language, setLanguage] = useState<'en' | 'ar'>(() => {
     return (localStorage.getItem('channel_editor_lang') as 'en' | 'ar') || 'en';
   });
+
+  const t = translations[language];
 
   // Settings
   const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
@@ -93,11 +96,7 @@ export const App: React.FC = () => {
   // Close / go back to home screen
   const handleCloseFile = useCallback(() => {
     if (channels.length > 0) {
-      const confirmLeave = window.confirm(
-        language === 'ar'
-          ? 'هل تريد العودة للصفحة الرئيسية؟ ستفقد التغييرات غير المحفوظة.'
-          : 'Return to home screen? Any unsaved edits will be cleared.'
-      );
+      const confirmLeave = window.confirm(t.unsavedWarning);
       if (!confirmLeave) return;
     }
     StorageService.clearSession();
@@ -109,7 +108,7 @@ export const App: React.FC = () => {
     setDbManager(null);
     setSelectedIds(new Set());
     setUndoStack([]);
-  }, [channels.length, language]);
+  }, [channels.length, t.unsavedWarning]);
 
   // Load and Unpack ZIP
   const handleFileSelected = useCallback(async (file: File | Blob, filename: string, persist: boolean = true) => {
@@ -519,12 +518,10 @@ export const App: React.FC = () => {
           <div className="bg-slate-900/90 border border-slate-700/70 rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm text-center mx-4">
             <div className="w-16 h-16 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin mb-5 shadow-lg shadow-cyan-500/25" />
             <h3 className="text-lg font-bold text-white mb-2 tracking-tight">
-              {language === 'ar' ? 'جاري تحميل ومعالجة القنوات...' : 'Loading Channel List...'}
+              {t.loadingTitle}
             </h3>
             <p className="text-xs text-slate-400 font-mono leading-relaxed">
-              {language === 'ar' 
-                ? 'فك ضغط الملف وقراءة قواعد بيانات SQLite وتحليل الإشارات' 
-                : 'Unpacking archive, reading SQLite database & signal telemetry...'}
+              {t.loadingDesc}
             </p>
           </div>
         </div>
@@ -699,12 +696,10 @@ export const App: React.FC = () => {
 
           <div className="flex-1 text-sm">
             <h4 className="font-bold text-white tracking-tight flex items-center gap-1.5">
-              <span>{language === 'ar' ? 'تم ترتيب القنوات بنجاح!' : 'Channels Sorted & Ready!'}</span>
+              <span>{t.exportToastTitle}</span>
             </h4>
             <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-              {language === 'ar' 
-                ? 'جاهز لنقل القنوات إلى الفلاشة وتحديث التلفزيون؟' 
-                : 'Ready to export to your USB drive for your TV?'}
+              {t.exportToastDesc}
             </p>
           </div>
 
@@ -717,7 +712,7 @@ export const App: React.FC = () => {
               className="btn btn-primary btn-sm font-bold flex items-center gap-1.5 shadow-md shadow-blue-500/25 px-3.5 py-2 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>{language === 'ar' ? 'تصدير الآن' : 'Export USB'}</span>
+              <span>{t.exportToastBtn}</span>
             </button>
 
             <button

@@ -26,6 +26,7 @@ import {
   PREDEFINED_CATEGORIES,
   CATEGORY_PRESETS,
 } from '../types/category';
+import { translations } from '../utils/i18n';
 
 export interface AIOrganizeOptions {
   removeDuplicates: boolean;
@@ -63,6 +64,9 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
   onApplyAIResults,
   language,
 }) => {
+  const t = translations[language];
+  const aim = t.aiModal;
+
   // Wizard Step: 'options' -> 'analyzing' -> 'review'
   const [step, setStep] = useState<'options' | 'analyzing' | 'review'>('options');
 
@@ -110,39 +114,34 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
   const [selectedJunkIds, setSelectedJunkIds] = useState<Set<string>>(new Set());
   const [selectedHideDupeIds, setSelectedHideDupeIds] = useState<Set<string>>(new Set());
   const [selectedScrambledIds, setSelectedScrambledIds] = useState<Set<string>>(new Set());
-  const [categoriesOrder, setCategoriesOrder] = useState<AIOrganizeResult['categories']>([]);
+  const [categoriesOrder, setCategoriesOrder] = useState<
+    { categoryName: string; categoryIcon?: string; srvIds: string[] }[]
+  >([]);
 
   if (!isOpen) return null;
-
-  const toggleOption = (key: keyof AIOrganizeOptions) => {
-    if (typeof options[key] === 'boolean') {
-      setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
-    }
-  };
-
-  const setPromptExample = (text: string) => {
-    setOptions((prev) => ({
-      ...prev,
-      customPrompt: prev.customPrompt ? `${prev.customPrompt}. ${text}` : text,
-    }));
-  };
 
   const handleSelectPreset = (presetId: string) => {
     setSelectedPresetId(presetId);
     const preset = CATEGORY_PRESETS.find((p) => p.id === presetId);
     if (!preset) return;
 
-    const map = new Map(PREDEFINED_CATEGORIES.map((c) => [c.id, c]));
+    const map = new Map(categoryList.map((c) => [c.id, c]));
     const ordered: CategoryDefinition[] = [];
+
+    // Order active categories according to preset
     preset.categoryIds.forEach((id) => {
-      if (map.has(id)) ordered.push({ ...map.get(id)!, enabled: true });
-    });
-    // Add any remaining
-    PREDEFINED_CATEGORIES.forEach((c) => {
-      if (!preset.categoryIds.includes(c.id)) {
-        ordered.push({ ...c, enabled: false });
+      const cat = map.get(id);
+      if (cat) {
+        ordered.push({ ...cat, enabled: true });
+        map.delete(id);
       }
     });
+
+    // Append remaining custom or non-preset categories
+    map.forEach((cat) => {
+      ordered.push(cat);
+    });
+
     setCategoryList(ordered);
   };
 
@@ -153,32 +152,37 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
   };
 
   const handleMoveCategory = (index: number, direction: 'up' | 'down') => {
-    const targetIdx = direction === 'up' ? index - 1 : index + 1;
-    if (targetIdx < 0 || targetIdx >= categoryList.length) return;
-    const updated = [...categoryList];
-    const [moved] = updated.splice(index, 1);
-    updated.splice(targetIdx, 0, moved);
-    setCategoryList(updated);
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= categoryList.length) return;
+    const next = [...categoryList];
+    const [moved] = next.splice(index, 1);
+    next.splice(targetIndex, 0, moved);
+    setCategoryList(next);
   };
 
   const handleAddCustomCategory = () => {
     if (!newCatName.trim()) return;
-    const id = `custom_${Date.now()}`;
-    const keywordsRegex = newCatKeywords.trim()
-      ? new RegExp(newCatKeywords.split(',').map((k) => k.trim()).filter(Boolean).join('|'), 'i')
-      : new RegExp(newCatName.trim(), 'i');
+    const customId = `custom_${Date.now()}`;
+    const keywordsRegex = new RegExp(
+      newCatKeywords
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean)
+        .join('|') || newCatName.trim(),
+      'i'
+    );
 
-    const newCat: CategoryDefinition = {
-      id,
+    const newDef: CategoryDefinition = {
+      id: customId,
       name: newCatName.trim(),
       nameAr: newCatName.trim(),
-      icon: newCatIcon.trim() || '📁',
+      icon: newCatIcon || '📁',
       keywords: keywordsRegex,
       enabled: true,
       isCustom: true,
     };
 
-    setCategoryList((prev) => [newCat, ...prev]);
+    setCategoryList((prev) => [newDef, ...prev]);
     setNewCatName('');
     setNewCatKeywords('');
     setIsAddingCategory(false);
@@ -199,9 +203,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
     }
 
     setStep('analyzing');
-    setProgressMsg(
-      language === 'ar' ? 'جاري تحليل القنوات والترددات...' : 'Analyzing channel frequencies and telemetry...'
-    );
+    setProgressMsg(aim.analyzingProgress);
     setProgressPercent(15);
 
     try {
@@ -219,10 +221,10 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
         channels,
         {
           ...options,
-          activeCategories: categoryList,
+          activeCategories: categoryList.filter((c) => c.enabled),
         },
         apiKey,
-        (msg, pct) => {
+        (msg: string, pct: number) => {
           setProgressMsg(msg);
           setProgressPercent(pct);
         }
@@ -230,78 +232,84 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
 
       setAiResults(results);
 
-      // Junk / Placeholders
+      // Populate review state with AI recommendations
       if (options.removeJunk) {
-        setSelectedJunkIds(new Set(results.junkSrvIds));
+        setSelectedJunkIds(new Set(results.junkSrvIds || []));
       } else {
         setSelectedJunkIds(new Set());
       }
 
-      // Frequency Duplicates
       if (options.removeDuplicates) {
-        const hideSet = new Set<string>();
-        results.duplicateGroups.forEach((g) => {
-          g.hideSrvIds.forEach((id) => hideSet.add(id));
+        const dupeHideIds = new Set<string>();
+        (results.duplicateGroups || []).forEach((group) => {
+          (group.hideSrvIds || []).forEach((id) => dupeHideIds.add(id));
         });
-        setSelectedHideDupeIds(hideSet);
+        setSelectedHideDupeIds(dupeHideIds);
       } else {
         setSelectedHideDupeIds(new Set());
       }
 
-      // Categories
       if (options.organizeCategories) {
-        setCategoriesOrder(results.categories);
+        setCategoriesOrder(
+          (results.categories || []).map((c) => ({
+            categoryName: c.categoryName,
+            categoryIcon: c.categoryIcon,
+            srvIds: c.srvIds || [],
+          }))
+        );
       } else {
         setCategoriesOrder([]);
       }
 
       setStep('review');
     } catch (err: any) {
-      alert(`Organization error: ${err.message || err}`);
+      alert(`Error during smart organization: ${err.message || err}`);
       setStep('options');
     }
   };
 
   const handleApply = () => {
-    if (!aiResults) return;
-
-    // Combine all hidden IDs (junk + duplicate frequencies + scrambled)
-    const combinedJunk = Array.from(new Set([...selectedJunkIds, ...selectedScrambledIds]));
-    const combinedDupeHide = Array.from(selectedHideDupeIds);
-
-    const orderedCategories = categoriesOrder.map((c) => ({
-      categoryName: c.categoryName,
-      srvIds: c.srvIds.filter(
-        (id) => !selectedJunkIds.has(id) && !selectedHideDupeIds.has(id) && !selectedScrambledIds.has(id)
-      ),
-    }));
-
-    onApplyAIResults(combinedJunk, combinedDupeHide, orderedCategories);
-    onClose();
+    onApplyAIResults(
+      Array.from(selectedJunkIds),
+      Array.from(selectedHideDupeIds),
+      categoriesOrder
+    );
   };
 
-  const totalExcluded = selectedJunkIds.size + selectedHideDupeIds.size + selectedScrambledIds.size;
-  const activeChannelsCount = Math.max(0, channels.length - totalExcluded);
+  const toggleOption = (key: keyof AIOrganizeOptions) => {
+    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const setPromptExample = (exampleText: string) => {
+    setOptions((prev) => ({
+      ...prev,
+      customPrompt: prev.customPrompt ? `${prev.customPrompt}\n${exampleText}` : exampleText,
+    }));
+  };
+
+  // Channel counts for stats
+  const activeChannelsCount =
+    channels.length - selectedJunkIds.size - selectedHideDupeIds.size - selectedScrambledIds.size;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div
-        className="w-full max-w-3xl glass rounded-3xl overflow-hidden shadow-2xl border flex flex-col max-h-[92vh]"
-        style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}
-      >
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="glass rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col border border-slate-700/80 shadow-2xl overflow-hidden animate-fade-in my-auto">
         {/* Modal Header */}
         <div
-          className="p-6 border-b flex items-center justify-between"
-          style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-tertiary)' }}
+          className="p-5 sm:p-6 border-b flex items-center justify-between"
+          style={{
+            borderColor: 'var(--border-color)',
+            backgroundColor: 'var(--bg-card)',
+          }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-pink-500 to-amber-400 flex items-center justify-center shadow-lg text-white">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 flex-shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-0.5">
-                <h2 className="text-xl font-bold tracking-tight">
-                  {language === 'ar' ? 'المنظم الذكي للقنوات والفئات' : 'Smart Channel & Categories Organizer'}
+                <h2 className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                  {aim.title}
                 </h2>
                 {apiKey && apiKey.trim() !== '' ? (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 flex items-center gap-1 shadow-sm">
@@ -315,17 +323,15 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400">
-                {language === 'ar'
-                  ? 'اختر قالب الترتيب الجاهز أو خصص أولويات الفئات وتعليمات الذكاء الاصطناعي'
-                  : 'Select a predefined category preset or customize thematic channel rules'}
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                {aim.subtitle}
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -341,26 +347,26 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setOptions({ ...options, engineMode: 'ai' })}
-                  className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all ${
+                  className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all cursor-pointer ${
                     options.engineMode === 'ai'
                       ? 'bg-purple-600 shadow-lg text-white'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                   }`}
                 >
                   <Sparkles className={`w-4 h-4 ${options.engineMode === 'ai' ? 'text-purple-200' : ''}`} />
-                  {language === 'ar' ? 'Google Gemini AI' : 'Google Gemini AI'}
+                  {aim.geminiAi}
                 </button>
                 <button
                   type="button"
                   onClick={() => setOptions({ ...options, engineMode: 'local' })}
-                  className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all ${
+                  className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all cursor-pointer ${
                     options.engineMode === 'local'
                       ? 'bg-cyan-600 shadow-lg text-white'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                   }`}
                 >
                   <Zap className={`w-4 h-4 ${options.engineMode === 'local' ? 'text-cyan-200' : ''}`} />
-                  {language === 'ar' ? 'محرك محلي سريع' : 'Local Fast Engine'}
+                  {aim.localEngine}
                 </button>
               </div>
 
@@ -373,12 +379,12 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-bold text-sm sm:text-base text-cyan-400">
+                  <div className="flex items-center gap-2 font-bold text-sm sm:text-base text-cyan-500">
                     <Layers className="w-5 h-5" />
-                    <span>{language === 'ar' ? 'قوالب ترتيب الفئات المسبقة:' : 'Predefined Category Presets:'}</span>
+                    <span>{aim.predefinedPresets}</span>
                   </div>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/25">
-                    {categoryList.filter((c) => c.enabled).length} {language === 'ar' ? 'فئات مفعلة' : 'Categories'}
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 font-semibold border border-cyan-500/25">
+                    {categoryList.filter((c) => c.enabled).length} {aim.activeCategoriesCount}
                   </span>
                 </div>
 
@@ -391,17 +397,17 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                         key={preset.id}
                         type="button"
                         onClick={() => handleSelectPreset(preset.id)}
-                        className={`p-3.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
+                        className={`p-3.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between cursor-pointer ${
                           isSelected
-                            ? 'bg-blue-500/15 border-cyan-400 shadow-md ring-1 ring-cyan-400/40'
-                            : 'border-slate-800 hover:border-slate-700 bg-slate-900/30'
+                            ? 'bg-blue-500/15 border-cyan-500 shadow-md ring-1 ring-cyan-500/40'
+                            : 'border-slate-700/60 hover:border-slate-600 bg-slate-900/30'
                         }`}
                       >
-                        <div className="font-bold text-xs sm:text-sm text-slate-100 flex items-center justify-between w-full">
+                        <div className="font-bold text-xs sm:text-sm flex items-center justify-between w-full" style={{ color: 'var(--text-primary)' }}>
                           <span>{language === 'ar' ? preset.nameAr : preset.name}</span>
-                          {isSelected && <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0" />}
+                          {isSelected && <CheckCircle2 className="w-4 h-4 text-cyan-500 flex-shrink-0" />}
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                        <p className="text-[11px] mt-1 line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                           {language === 'ar' ? preset.descriptionAr : preset.description}
                         </p>
                       </button>
@@ -410,15 +416,15 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                 </div>
 
                 {/* Category Reordering & Customizer Accordion */}
-                <div className="pt-2 border-t border-slate-800">
+                <div className="pt-2 border-t" style={{ borderColor: 'var(--border-color)' }}>
                   <button
                     type="button"
                     onClick={() => setIsCategoryCustomizerOpen(!isCategoryCustomizerOpen)}
-                    className="flex items-center justify-between w-full text-xs font-bold text-cyan-300 hover:text-cyan-200 py-1"
+                    className="flex items-center justify-between w-full text-xs font-bold text-cyan-600 dark:text-cyan-300 hover:opacity-80 py-1 cursor-pointer"
                   >
                     <span className="flex items-center gap-1.5">
                       <Sliders className="w-3.5 h-3.5" />
-                      {language === 'ar' ? 'تخصيص وترتيب الفئات يدوياً' : 'Customize & Reorder Categories'}
+                      {aim.customizeAccordion}
                     </span>
                     {isCategoryCustomizerOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
@@ -428,11 +434,12 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                       {categoryList.map((cat, idx) => (
                         <div
                           key={cat.id}
-                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs ${
-                            cat.enabled
-                              ? 'bg-slate-800/60 border-slate-700 text-slate-200'
-                              : 'bg-slate-900/30 border-slate-800/60 text-slate-500 opacity-60'
-                          }`}
+                          className="flex items-center justify-between p-2.5 rounded-xl border text-xs"
+                          style={{
+                            backgroundColor: cat.enabled ? 'var(--bg-card)' : 'var(--bg-page)',
+                            borderColor: 'var(--border-color)',
+                            opacity: cat.enabled ? 1 : 0.6,
+                          }}
                         >
                           <div className="flex items-center gap-2.5">
                             <input
@@ -442,10 +449,10 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                               className="w-4 h-4 rounded text-cyan-500 cursor-pointer"
                             />
                             <span className="text-base">{cat.icon}</span>
-                            <span className="font-semibold">
+                            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                               {language === 'ar' ? cat.nameAr : cat.name}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono">#{idx + 1}</span>
+                            <span className="text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>#{idx + 1}</span>
                           </div>
 
                           <div className="flex items-center gap-1">
@@ -453,7 +460,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                               type="button"
                               onClick={() => handleMoveCategory(idx, 'up')}
                               disabled={idx === 0}
-                              className="p-1 text-slate-400 hover:text-cyan-300 disabled:opacity-20 transition-colors"
+                              className="p-1 text-slate-400 hover:text-cyan-500 disabled:opacity-20 transition-colors cursor-pointer"
                               title="Move Up"
                             >
                               <ArrowUp className="w-3.5 h-3.5" />
@@ -462,7 +469,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                               type="button"
                               onClick={() => handleMoveCategory(idx, 'down')}
                               disabled={idx === categoryList.length - 1}
-                              className="p-1 text-slate-400 hover:text-cyan-300 disabled:opacity-20 transition-colors"
+                              className="p-1 text-slate-400 hover:text-cyan-500 disabled:opacity-20 transition-colors cursor-pointer"
                               title="Move Down"
                             >
                               <ArrowDown className="w-3.5 h-3.5" />
@@ -471,7 +478,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleRemoveCategory(cat.id)}
-                                className="p-1 text-rose-400 hover:text-rose-300 transition-colors"
+                                className="p-1 text-rose-400 hover:text-rose-300 transition-colors cursor-pointer"
                                 title="Remove"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -486,15 +493,15 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setIsAddingCategory(true)}
-                          className="w-full py-2 rounded-xl border border-dashed border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors mt-2"
+                          className="w-full py-2 rounded-xl border border-dashed border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors mt-2 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>{language === 'ar' ? 'إضافة فئة مخصصة جديدة' : 'Add Custom Category'}</span>
+                          <span>{aim.addCustomCategory}</span>
                         </button>
                       ) : (
-                        <div className="p-3 rounded-xl border border-cyan-500/40 bg-slate-900/80 space-y-2 mt-2">
-                          <div className="text-xs font-bold text-cyan-300">
-                            {language === 'ar' ? 'فئة جديدة:' : 'New Custom Category:'}
+                        <div className="p-3 rounded-xl border border-cyan-500/40 space-y-2 mt-2" style={{ backgroundColor: 'var(--bg-card)' }}>
+                          <div className="text-xs font-bold text-cyan-500">
+                            {aim.newCategoryLabel}
                           </div>
                           <div className="flex items-center gap-2">
                             <input
@@ -502,37 +509,40 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                               value={newCatIcon}
                               onChange={(e) => setNewCatIcon(e.target.value)}
                               placeholder="Icon"
-                              className="w-12 text-center p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold"
+                              className="w-12 text-center p-1.5 rounded-lg border text-xs font-bold"
+                              style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                             />
                             <input
                               type="text"
                               value={newCatName}
                               onChange={(e) => setNewCatName(e.target.value)}
-                              placeholder={language === 'ar' ? 'اسم الفئة (e.g. 4K Ultra)' : 'Category Name (e.g. 4K Ultra)'}
-                              className="flex-1 p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-semibold text-white"
+                              placeholder={aim.categoryNamePlaceholder}
+                              className="flex-1 p-1.5 rounded-lg border text-xs font-semibold"
+                              style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                             />
                           </div>
                           <input
                             type="text"
                             value={newCatKeywords}
                             onChange={(e) => setNewCatKeywords(e.target.value)}
-                            placeholder={language === 'ar' ? 'كلمات البحث المفتاحية مفصولة بفواصل (e.g. 4k, uhd, hdr)' : 'Keywords separated by comma (e.g. 4k, uhd, hdr)'}
-                            className="w-full p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-300"
+                            placeholder={aim.keywordsPlaceholder}
+                            className="w-full p-1.5 rounded-lg border text-xs"
+                            style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                           />
                           <div className="flex justify-end gap-2 pt-1">
                             <button
                               type="button"
                               onClick={() => setIsAddingCategory(false)}
-                              className="px-2.5 py-1 rounded-lg text-xs text-slate-400 hover:text-white"
+                              className="px-2.5 py-1 rounded-lg text-xs text-slate-400 hover:text-white cursor-pointer"
                             >
-                              {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                              {t.cancel}
                             </button>
                             <button
                               type="button"
                               onClick={handleAddCustomCategory}
-                              className="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white"
+                              className="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white cursor-pointer"
                             >
-                              {language === 'ar' ? 'حفظ الفئة' : 'Save Category'}
+                              {aim.saveCategory}
                             </button>
                           </div>
                         </div>
@@ -551,16 +561,12 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <label className="font-bold text-sm sm:text-base flex items-center gap-2 text-cyan-400">
+                  <label className="font-bold text-sm sm:text-base flex items-center gap-2 text-cyan-500">
                     <MessageSquare className="w-4 h-4" />
-                    <span>
-                      {language === 'ar'
-                        ? 'تعليمات إضافية مخصصة (Custom Instructions):'
-                        : 'Additional Custom Instructions / Chat:'}
-                    </span>
+                    <span>{aim.customInstructionsTitle}</span>
                   </label>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-semibold border border-cyan-500/25">
-                    Optional
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 font-semibold border border-cyan-500/25">
+                    {aim.optional}
                   </span>
                 </div>
 
@@ -569,11 +575,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                     value={options.customPrompt}
                     onChange={(e) => setOptions({ ...options, customPrompt: e.target.value })}
                     rows={3}
-                    placeholder={
-                      language === 'ar'
-                        ? 'مثال: اجعل قنوات mbc2 و mix في أول الترتيب، وأخفِ قنوات التسوق والإعلانات...'
-                        : 'e.g. put MBC 2 and Mix at the very top, and hide all shopping and commercial channels...'
-                    }
+                    placeholder={aim.customInstructionsPlaceholder}
                     className="w-full rounded-2xl p-4 text-sm font-medium focus:outline-none transition-all leading-relaxed shadow-inner"
                     style={{
                       backgroundColor: 'var(--bg-input)',
@@ -587,44 +589,32 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
 
                 {/* Quick Suggestion Chips */}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <span className="text-xs font-bold text-slate-400">
-                    {language === 'ar' ? 'أمثلة سريعة:' : 'Quick Prompts:'}
+                  <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
+                    {aim.quickPromptsTitle}
                   </span>
                   {[
                     {
-                      label: language === 'ar' ? '🎬 أفلام إنجليزية أولاً' : '🎬 English Movies First',
-                      text:
-                        language === 'ar'
-                          ? 'انشئ فئة English movies واجعلها أولاً وضمنها mbc2 و mix'
-                          : 'create English movies category and make it first and put mbc2 and mix',
+                      label: aim.quickEnglish,
+                      text: aim.quickEnglishPrompt,
                     },
                     {
-                      label: language === 'ar' ? '👶 الأطفال والعائلة' : '👶 Kids & Family First',
-                      text:
-                        language === 'ar'
-                          ? 'اجعل قنوات الأطفال والكرتون في البداية بعد القرآن'
-                          : 'Put kids & cartoon channels right after religious channels',
+                      label: aim.quickKids,
+                      text: aim.quickKidsPrompt,
                     },
                     {
-                      label: language === 'ar' ? '⚽ تقديم قنوات الرياضة' : '⚽ Sports Focus',
-                      text:
-                        language === 'ar'
-                          ? 'ضع قنوات الرياضة (beIN, Alkass, OnTime) في المراكز الأولى'
-                          : 'Group all sports channels in the top 10',
+                      label: aim.quickSports,
+                      text: aim.quickSportsPrompt,
                     },
                     {
-                      label: language === 'ar' ? '🚫 إخفاء قنوات التسوق' : '🚫 Hide Shopping Feeds',
-                      text:
-                        language === 'ar'
-                          ? 'أخفِ جميع قنوات الإعلانات والتسوق التجارية'
-                          : 'Hide all commercial and shopping channels',
+                      label: aim.quickShopping,
+                      text: aim.quickShoppingPrompt,
                     },
                   ].map((chip, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setPromptExample(chip.text)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+                      className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-300 hover:bg-cyan-500/20 transition-colors cursor-pointer"
                     >
                       {chip.label}
                     </button>
@@ -634,8 +624,8 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
 
               {/* 📋 Standard Checkboxes */}
               <div className="space-y-3">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  {language === 'ar' ? 'خيارات التنظيف وإدارة الترددات:' : 'Signal & Cleanup Rules:'}
+                <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                  {aim.cleanupRulesTitle}
                 </div>
 
                 {/* 1. Remove Duplicates & Keep Best Signal */}
@@ -657,18 +647,12 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-slate-700 text-cyan-500 focus:ring-0 cursor-pointer"
                   />
                   <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
-                      <Copy className="w-4 h-4 text-cyan-400" />
-                      <span>
-                        {language === 'ar'
-                          ? 'إزالة الترددات المكررة (إبقاء أفضل جودة إشارة)'
-                          : 'Remove Duplicate Frequencies (Keep Best Signal Quality)'}
-                      </span>
+                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base" style={{ color: 'var(--text-primary)' }}>
+                      <Copy className="w-4 h-4 text-cyan-500" />
+                      <span>{aim.removeDupesTitle}</span>
                     </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {language === 'ar'
-                        ? 'يفحص القنوات المكررة عبر الترددات، ويختار التردد الأعلى جودة والأقل أخطاء تلقائياً.'
-                        : 'Scans channels across all transponders, compares signal telemetry, and keeps only the highest quality copy.'}
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {aim.removeDupesDesc}
                     </p>
                   </div>
                 </label>
@@ -692,18 +676,12 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-slate-700 text-cyan-500 focus:ring-0 cursor-pointer"
                   />
                   <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
+                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base" style={{ color: 'var(--text-primary)' }}>
                       <Lock className="w-4 h-4 text-rose-400" />
-                      <span>
-                        {language === 'ar'
-                          ? 'إخفاء القنوات المشفرة والمدفوعة (Scrambled / Pay-TV)'
-                          : 'Hide Scrambled & Pay-TV Channels'}
-                      </span>
+                      <span>{aim.hideScrambledTitle}</span>
                     </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {language === 'ar'
-                        ? 'إخفاء القنوات المغلقة باشتراك أو تشفير حتى تبقى القنوات المفتوحة (FTA) فقط.'
-                        : 'Automatically hides encrypted channels requiring a subscription or card module.'}
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {aim.hideScrambledDesc}
                     </p>
                   </div>
                 </label>
@@ -727,18 +705,12 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-slate-700 text-cyan-500 focus:ring-0 cursor-pointer"
                   />
                   <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
+                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base" style={{ color: 'var(--text-primary)' }}>
                       <Layers className="w-4 h-4 text-purple-400" />
-                      <span>
-                        {language === 'ar'
-                          ? 'ترتيب القنوات حسب الفئات المحددة أعلاه'
-                          : 'Organize Channels by Selected Categories Above'}
-                      </span>
+                      <span>{aim.organizeCategoriesTitle}</span>
                     </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {language === 'ar'
-                        ? 'تطبيق ترتيب الفئات المحددة في القالب أعلاه على جميع القنوات النشطة.'
-                        : 'Applies the active predefined categories order onto all active TV & Radio channels.'}
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {aim.organizeCategoriesDesc}
                     </p>
                   </div>
                 </label>
@@ -762,18 +734,12 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-slate-700 text-cyan-500 focus:ring-0 cursor-pointer"
                   />
                   <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
+                    <div className="flex items-center gap-2 font-bold text-sm sm:text-base" style={{ color: 'var(--text-primary)' }}>
                       <Trash2 className="w-4 h-4 text-amber-400" />
-                      <span>
-                        {language === 'ar'
-                          ? 'تنظيف القنوات التجريبية والمغلقة (Test Feeds & Inactive)'
-                          : 'Remove Inactive & Placeholder Channels'}
-                      </span>
+                      <span>{aim.removeJunkTitle}</span>
                     </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {language === 'ar'
-                        ? 'حذف قنوات الاختبار ("Test", "Service ####", "Ch-####") وقنوات الإشارة الصفرية.'
-                        : 'Hides dead placeholder feeds, nameless test channels, and 0% signal services.'}
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {aim.removeJunkDesc}
                     </p>
                   </div>
                 </label>
@@ -783,7 +749,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                   <label
                     onClick={() => toggleOption('prioritizeHD')}
                     className="flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer text-xs sm:text-sm font-semibold"
-                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)' }}
+                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   >
                     <input
                       type="checkbox"
@@ -792,15 +758,15 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                       className="w-4 h-4 rounded text-cyan-500 focus:ring-0 cursor-pointer"
                     />
                     <div className="flex items-center gap-2">
-                      <Tv className="w-4 h-4 text-cyan-400" />
-                      <span>{language === 'ar' ? 'تقديم قنوات HD على SD' : 'Prioritize HD over SD'}</span>
+                      <Tv className="w-4 h-4 text-cyan-500" />
+                      <span>{aim.prioritizeHd}</span>
                     </div>
                   </label>
 
                   <label
                     onClick={() => toggleOption('groupRadioAtEnd')}
                     className="flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer text-xs sm:text-sm font-semibold"
-                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)' }}
+                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   >
                     <input
                       type="checkbox"
@@ -810,7 +776,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                     />
                     <div className="flex items-center gap-2">
                       <Radio className="w-4 h-4 text-amber-400" />
-                      <span>{language === 'ar' ? 'تجميع إذاعات الراديو في النهاية' : 'Group Radio at the End'}</span>
+                      <span>{aim.groupRadioEnd}</span>
                     </div>
                   </label>
                 </div>
@@ -823,7 +789,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
             <div className="py-16 text-center space-y-6 animate-fade-in">
               <div className="w-16 h-16 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin mx-auto"></div>
               <div className="space-y-2">
-                <h3 className="text-lg font-bold text-slate-200">{progressMsg}</h3>
+                <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{progressMsg}</h3>
                 <div className="w-64 h-2 bg-slate-800 rounded-full mx-auto overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 transition-all duration-300"
@@ -850,12 +816,10 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                     <Bot className="w-5 h-5" />
                   </div>
                   <div className="space-y-1 flex-1">
-                    <div className="font-bold text-sm text-cyan-400 flex items-center gap-2">
-                      <span>
-                        {language === 'ar' ? 'رد المنظم الذكي (AI Response):' : 'AI Organizer Confirmation:'}
-                      </span>
+                    <div className="font-bold text-sm text-cyan-500 flex items-center gap-2">
+                      <span>{aim.aiResponseTitle}</span>
                     </div>
-                    <p className="text-sm text-slate-200 leading-relaxed font-medium">
+                    <p className="text-sm leading-relaxed font-medium" style={{ color: 'var(--text-primary)' }}>
                       {aiResults.aiResponse}
                     </p>
                   </div>
@@ -865,28 +829,22 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
               {/* Summary Stats Pill Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-center space-y-1">
-                  <div className="text-xs text-slate-400">{language === 'ar' ? 'القنوات النشطة' : 'Active Channels'}</div>
-                  <div className="text-lg font-bold text-cyan-400">{activeChannelsCount}</div>
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{aim.activeChannelsStat}</div>
+                  <div className="text-lg font-bold text-cyan-500">{activeChannelsCount}</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center space-y-1">
-                  <div className="text-xs text-slate-400">
-                    {language === 'ar' ? 'ترددات مكررة تم حلها' : 'Duplicates Resolved'}
-                  </div>
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{aim.dupesResolvedStat}</div>
                   <div className="text-lg font-bold text-purple-400">{selectedHideDupeIds.size}</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-center space-y-1">
-                  <div className="text-xs text-slate-400">
-                    {language === 'ar' ? 'قنوات مشفرة مخفية' : 'Scrambled Hidden'}
-                  </div>
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{aim.scrambledHiddenStat}</div>
                   <div className="text-lg font-bold text-rose-400">{selectedScrambledIds.size}</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-1">
-                  <div className="text-xs text-slate-400">
-                    {language === 'ar' ? 'قنوات تجريبية تم تنظيفها' : 'Test Feeds Cleaned'}
-                  </div>
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{aim.junkCleanedStat}</div>
                   <div className="text-lg font-bold text-amber-400">{selectedJunkIds.size}</div>
                 </div>
               </div>
@@ -894,8 +852,8 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
               {/* Categorization Preview */}
               {options.organizeCategories && categoriesOrder.length > 0 && (
                 <div className="space-y-3">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    {language === 'ar' ? 'ترتيب المجموعات الجديد:' : 'New Category Order:'}
+                  <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                    {aim.newCategoryOrderTitle}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-64 overflow-y-auto p-1">
                     {categoriesOrder.map((cat, idx) => (
@@ -903,18 +861,18 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                         key={idx}
                         className="p-3.5 rounded-xl border flex items-center justify-between text-xs font-semibold shadow-sm"
                         style={{
-                          backgroundColor: idx === 0 ? 'rgba(59, 130, 246, 0.15)' : 'var(--bg-tertiary)',
-                          borderColor: idx === 0 ? 'rgba(59, 130, 246, 0.5)' : 'var(--border-color)',
+                          backgroundColor: idx === 0 ? 'rgba(59, 130, 246, 0.12)' : 'var(--bg-card)',
+                          borderColor: idx === 0 ? 'rgba(59, 130, 246, 0.4)' : 'var(--border-color)',
                         }}
                       >
                         <div className="flex items-center gap-2.5">
                           <span className="text-base">{cat.categoryIcon || '📁'}</span>
-                          <span className={idx === 0 ? 'text-cyan-300 font-bold' : ''}>
+                          <span className={idx === 0 ? 'text-blue-500 font-bold' : ''} style={{ color: idx === 0 ? undefined : 'var(--text-primary)' }}>
                             {idx + 1}. {cat.categoryName}
                           </span>
                         </div>
-                        <span className="font-mono text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">
-                          {cat.srvIds.length} ch
+                        <span className="font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">
+                          {cat.srvIds.length} {aim.channelsUnit}
                         </span>
                       </div>
                     ))}
@@ -932,33 +890,33 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
         >
           {step === 'options' ? (
             <>
-              <button onClick={onClose} className="btn btn-secondary text-sm font-semibold">
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              <button onClick={onClose} className="btn btn-secondary text-sm font-semibold cursor-pointer">
+                {t.cancel}
               </button>
 
               <button
                 onClick={handleStartAnalysis}
-                className="btn btn-ai px-6 py-2.5 text-sm font-bold shadow-xl flex items-center gap-2"
+                className="btn btn-ai px-6 py-2.5 text-sm font-bold shadow-xl flex items-center gap-2 cursor-pointer"
               >
                 <Zap className="w-4 h-4" />
-                <span>{language === 'ar' ? 'ابدأ التنظيم الذكي' : 'Run Smart Organization'}</span>
+                <span>{aim.runOrganizeBtn}</span>
               </button>
             </>
           ) : step === 'review' ? (
             <>
               <button
                 onClick={() => setStep('options')}
-                className="btn btn-secondary text-sm font-semibold"
+                className="btn btn-secondary text-sm font-semibold cursor-pointer"
               >
-                {language === 'ar' ? '← تعديل الخيارات والفئات' : '← Change Preset / Rules'}
+                {aim.changePresetBtn}
               </button>
 
               <button
                 onClick={handleApply}
-                className="btn btn-primary px-8 py-2.5 text-sm font-bold shadow-xl flex items-center gap-2"
+                className="btn btn-primary px-8 py-2.5 text-sm font-bold shadow-xl flex items-center gap-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                <span>{language === 'ar' ? 'تطبيق على قائمة القنوات' : 'Apply to Channel List'}</span>
+                <span>{aim.applyToChannelListBtn}</span>
               </button>
             </>
           ) : null}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, X, Key, ShieldCheck, Moon, Sun, Languages } from 'lucide-react';
+import { Settings, X, Key, Moon, Sun, Languages } from 'lucide-react';
 import { translations } from '../utils/i18n';
 
 interface SettingsModalProps {
@@ -24,6 +24,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onToggleLanguage,
 }) => {
   const t = translations[language];
+  const st = t.settingsModal;
   const [keyInput, setKeyInput] = useState(apiKey);
 
   if (!isOpen) return null;
@@ -41,39 +42,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
               <Settings className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-bold text-white">
-              {t.settings}
+            <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
+              {st.title}
             </h3>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+          <button onClick={onClose} className="text-slate-400 hover:text-white p-1 cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Gemini API Key */}
         <div className="space-y-2">
-          <label className="block text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+          <label className="block text-xs font-semibold flex items-center gap-1.5" style={{ color: 'var(--text-primary)' }}>
             <Key className="w-3.5 h-3.5 text-purple-400" />
-            <span>Google Gemini API Key</span>
+            <span>{st.apiSectionTitle}</span>
           </label>
           <input
             type="password"
             value={keyInput}
             onChange={(e) => setKeyInput(e.target.value)}
-            placeholder="AIzaSy... (optional)"
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            placeholder={st.apiKeyPlaceholder}
+            className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-3 py-2 text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            style={{ color: 'var(--text-primary)' }}
           />
-          <p className="text-[11px] text-slate-400">
-            Stored locally in your browser only. Used for smart satellite categorization.
+          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            {st.apiSectionDesc}
           </p>
         </div>
 
         {/* Theme & Language Toggles */}
-        <div className="space-y-3 pt-2 border-t border-slate-800">
+        <div className="space-y-3 pt-2 border-t" style={{ borderColor: 'var(--border-color)' }}>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-300 font-semibold flex items-center gap-2">
+            <span className="text-xs font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <Languages className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Language</span>
+              <span>{st.langTitle}</span>
             </span>
             <button
               onClick={onToggleLanguage}
@@ -84,9 +86,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-300 font-semibold flex items-center gap-2">
+            <span className="text-xs font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               {theme === 'dark' ? <Moon className="w-3.5 h-3.5 text-indigo-400" /> : <Sun className="w-3.5 h-3.5 text-amber-400" />}
-              <span>Theme</span>
+              <span>{st.themeTitle}</span>
             </span>
             <button
               onClick={onToggleTheme}
@@ -102,7 +104,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {t.cancel}
           </button>
           <button onClick={handleSave} className="btn btn-primary text-xs font-bold">
-            {t.saveChanges}
+            {st.saveKey}
           </button>
         </div>
       </div>

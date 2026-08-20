@@ -13,7 +13,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   isLoading,
   language,
 }) => {
-  const t = translations[language];
+  const t = translations[language].uploader;
   const [isDragging, setIsDragging] = useState(false);
   const [autoCleanDuplicates, setAutoCleanDuplicates] = useState(true);
   const [isExportPathExpanded, setIsExportPathExpanded] = useState(true);
@@ -94,15 +94,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           className="font-bold mb-2 tracking-tight"
           style={{ fontSize: 'clamp(24px, 2.6vw, 34px)', lineHeight: 1.25, color: 'var(--text-primary)' }}
         >
-          {language === 'ar' ? 'رتّب ونظّف قائمة قنواتك' : 'Clean up your channel list'}
+          {t.title}
         </h1>
         <p
           className="leading-relaxed max-w-3xl font-medium"
           style={{ fontSize: 'clamp(14px, 1.15vw, 16px)', color: 'var(--text-secondary)' }}
         >
-          {language === 'ar'
-            ? 'انقل قائمة القنوات من شاشتك عبر الفلاشة، رتّب واحذف الترددات المكررة، ثم أعدها للشاشة.'
-            : 'Bring a channel list over from your TV, reorder and remove duplicates, then send it back.'}
+          {t.subtitle}
         </p>
       </div>
 
@@ -115,20 +113,18 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           {/* Header & Description */}
           <div className="space-y-3">
             <span className="badge-tv text-xs font-semibold px-3 py-1">
-              {language === 'ar' ? 'من الشاشة' : 'On your TV'}
+              {t.badgeTv}
             </span>
 
             <div className="flex items-center gap-3 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">1</span>
               <span className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>
-                {language === 'ar' ? 'تصدير القائمة' : 'Export list'}
+                {t.step1Title}
               </span>
             </div>
 
             <p className="text-sm leading-relaxed pt-1" style={{ color: 'var(--text-secondary)' }}>
-              {language === 'ar'
-                ? 'احفظ القائمة على الفلاشة من إعدادات البث في التلفزيون.'
-                : 'Plug in a USB drive and export your channel list from TV settings.'}
+              {t.step1Desc}
             </p>
           </div>
 
@@ -142,7 +138,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               aria-controls="export-path-list"
             >
               <Route className="w-4 h-4 text-cyan-500 shrink-0" />
-              <span className="flex-1">{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
+              <span className="flex-1">{t.howToGetThere}</span>
               <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isExportPathExpanded ? 'rotate-180' : ''}`} style={{ color: 'var(--text-muted)' }} />
             </button>
 
@@ -151,13 +147,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               id="export-path-list"
               className={`overflow-hidden transition-all duration-300 ${isExportPathExpanded ? 'max-h-64 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}
             >
-              {[
-                language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
-                language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
-                language === 'ar' ? '3. إعدادات الخبراء (Expert Settings)' : '3. Expert Settings',
-                language === 'ar' ? '4. نقل قائمة القنوات' : '4. Transfer Channel List',
-                language === 'ar' ? '5. تصدير إلى USB' : '5. Export to USB',
-              ].map((step, idx) => (
+              {t.step1Steps.map((step, idx) => (
                 <div
                   key={idx}
                   className={`step-path-item ${idx === 4 ? 'active' : ''}`}
@@ -180,12 +170,12 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           {/* Header */}
           <div className="mb-3">
             <span className="badge-app text-xs font-semibold px-3 py-1">
-              {language === 'ar' ? 'في هذا التطبيق' : 'In this app'}
+              {t.badgeApp}
             </span>
             <div className="flex items-center gap-3 pt-2">
               <span className="step-num on w-7 h-7 text-xs font-bold">2</span>
               <span className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>
-                {language === 'ar' ? 'الترتيب والتنظيم الذكي' : 'Organize Channels'}
+                {t.step2Title}
               </span>
             </div>
           </div>
@@ -214,10 +204,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
             <div className="space-y-1 mb-4">
               <p className="font-bold text-base sm:text-lg" style={{ color: 'var(--text-primary)' }}>
-                {language === 'ar' ? 'اسحب وأفلت ملف Channel_list.zip هنا' : 'Drop channel_list.zip here'}
+                {t.dropTitle}
               </p>
               <p className="text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                {language === 'ar' ? 'أو اضغط لاختيار الملف من الفلاشة' : 'or click anywhere to browse from your USB'}
+                {t.dropSubtitle}
               </p>
             </div>
 
@@ -230,9 +220,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                 fileInputRef.current?.click();
               }}
             >
-              {isLoading
-                ? (language === 'ar' ? 'جاري فتح الملف...' : 'Reading files...')
-                : (language === 'ar' ? 'استعراض الملفات' : 'Browse files')}
+              {isLoading ? t.readingFiles : t.browseBtn}
             </button>
           </div>
 
@@ -240,14 +228,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           <div className="pt-2">
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                {language === 'ar' ? 'تنظيف الترددات المكررة تلقائياً' : 'Auto-clean duplicate frequencies'}
+                {t.autoCleanToggle}
               </span>
               <label className="clean-toggle">
                 <input
                   type="checkbox"
                   checked={autoCleanDuplicates}
                   onChange={(e) => setAutoCleanDuplicates(e.target.checked)}
-                  aria-label="Auto-clean duplicates"
+                  aria-label={t.autoCleanToggle}
                 />
                 <span className="track"></span>
                 <span className="thumb"></span>
@@ -267,20 +255,18 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           {/* Header & Description */}
           <div className="space-y-3">
             <span className="badge-tv text-xs font-semibold px-3 py-1">
-              {language === 'ar' ? 'من الشاشة' : 'On your TV'}
+              {t.badgeTv}
             </span>
 
             <div className="flex items-center gap-3 pt-1">
               <span className="step-num w-7 h-7 text-xs font-bold">3</span>
               <span className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>
-                {language === 'ar' ? 'استيراد للشاشة' : 'Import to TV'}
+                {t.step3Title}
               </span>
             </div>
 
             <p className="text-sm leading-relaxed pt-1" style={{ color: 'var(--text-secondary)' }}>
-              {language === 'ar'
-                ? 'ضع الفلاشة في التلفزيون واستورد القائمة الجديدة المنظمة.'
-                : 'Plug the USB back into your TV and import the clean channel list.'}
+              {t.step3Desc}
             </p>
           </div>
 
@@ -294,7 +280,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               aria-controls="import-path-list"
             >
               <Route className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span className="flex-1">{language === 'ar' ? 'كيف أصل إلى هناك؟' : 'How do I get there?'}</span>
+              <span className="flex-1">{t.howToGetThere}</span>
               <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isImportPathExpanded ? 'rotate-180' : ''}`} style={{ color: 'var(--text-muted)' }} />
             </button>
 
@@ -303,13 +289,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               id="import-path-list"
               className={`overflow-hidden transition-all duration-300 ${isImportPathExpanded ? 'max-h-64 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}
             >
-              {[
-                language === 'ar' ? '1. الإعدادات (Settings)' : '1. Settings',
-                language === 'ar' ? '2. البث (Broadcasting)' : '2. Broadcasting',
-                language === 'ar' ? '3. إعدادات الخبراء (Expert Settings)' : '3. Expert Settings',
-                language === 'ar' ? '4. نقل قائمة القنوات' : '4. Transfer Channel List',
-                language === 'ar' ? '5. استيراد من USB' : '5. Import from USB',
-              ].map((step, idx) => (
+              {t.step3Steps.map((step, idx) => (
                 <div
                   key={idx}
                   className={`step-path-item ${idx === 4 ? 'active-import' : ''}`}
@@ -326,11 +306,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       {/* ── Footer ── */}
       <div className="mt-6 flex items-center gap-2 text-xs sm:text-sm" style={{ color: 'var(--text-secondary)' }}>
         <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-        <span>
-          {language === 'ar'
-            ? 'تتم المعالجة بالكامل داخل متصفحك محلياً. لا يتم رفع أي بيانات إلى أي خادم.'
-            : 'Processed on your device. Nothing is uploaded to any server.'}
-        </span>
+        <span>{t.secureBadge}</span>
       </div>
 
     </div>

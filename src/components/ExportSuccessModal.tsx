@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, Download, Tv, Usb, ArrowRight, X, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Download, Tv } from 'lucide-react';
 import { translations } from '../utils/i18n';
 
 interface ExportSuccessModalProps {
@@ -18,7 +18,7 @@ export const ExportSuccessModal: React.FC<ExportSuccessModalProps> = ({
   filename,
   language,
 }) => {
-  const t = translations[language];
+  const t = translations[language].exportSuccessModal;
 
   useEffect(() => {
     if (isOpen) {
@@ -41,10 +41,10 @@ export const ExportSuccessModal: React.FC<ExportSuccessModalProps> = ({
         </div>
 
         <div>
-          <h2 className="text-xl font-extrabold text-white">
-            {t.confirmExportTitle}
+          <h2 className="text-xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
+            {t.title}
           </h2>
-          <p className="text-xs text-slate-400 font-mono mt-1">
+          <p className="text-xs font-mono mt-1" style={{ color: 'var(--text-secondary)' }}>
             {filename}
           </p>
         </div>
@@ -53,54 +53,52 @@ export const ExportSuccessModal: React.FC<ExportSuccessModalProps> = ({
         <a
           href={downloadUrl}
           download={filename}
-          className="btn btn-primary w-full py-3.5 text-base font-bold flex items-center justify-center gap-2 shadow-xl shadow-blue-500/25"
+          className="btn btn-primary w-full py-3.5 text-base font-bold flex items-center justify-center gap-2 shadow-xl shadow-blue-500/25 cursor-pointer"
         >
           <Download className="w-5 h-5" />
-          <span>{t.downloadZip}</span>
+          <span>{t.downloadBtn}</span>
         </a>
 
         {/* 4-Step TV Import Guide */}
-        <div className="glass rounded-xl p-4 text-left rtl:text-right border border-slate-800 space-y-3">
-          <h4 className="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+        <div className="rounded-xl p-4 text-left rtl:text-right border space-y-3" style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)' }}>
+          <h4 className="text-xs font-bold text-cyan-500 uppercase tracking-wider flex items-center gap-2">
             <Tv className="w-4 h-4" />
-            <span>How to Apply on Samsung T5300 TV</span>
+            <span>{t.howToImportTitle}</span>
           </h4>
 
-          <ol className="space-y-2.5 text-xs text-slate-300">
+          <ol className="space-y-2.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
             <li className="flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-300 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
+              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-400 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
                 1
               </span>
-              <span>Copy the downloaded <b>.zip</b> file onto the root of your <b>FAT32 USB drive</b>.</span>
+              <span>{t.step1}</span>
             </li>
             <li className="flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-300 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
+              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-400 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
                 2
               </span>
-              <span>Insert the USB drive into your Samsung TV.</span>
+              <span>{t.step2}</span>
             </li>
             <li className="flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-300 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
+              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-400 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
                 3
               </span>
-              <span>
-                On TV remote, press <b>Home → Settings → Broadcasting → Expert Settings → Transfer Channel List → Import from USB</b>.
-              </span>
+              <span>{t.step3}</span>
             </li>
             <li className="flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-300 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
+              <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-400 flex items-center justify-center font-bold font-mono text-[11px] flex-shrink-0">
                 4
               </span>
-              <span>Enter TV PIN (<b>0000</b>). TV will reboot with your newly arranged channels!</span>
+              <span>{t.step4}</span>
             </li>
           </ol>
         </div>
 
         <button
           onClick={onClose}
-          className="btn btn-secondary w-full text-xs"
+          className="btn btn-secondary w-full text-xs font-bold cursor-pointer"
         >
-          Done
+          {t.closeBtn}
         </button>
       </div>
     </div>

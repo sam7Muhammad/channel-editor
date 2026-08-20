@@ -142,9 +142,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           value={filter.categoryFilter}
           onChange={(e) => onFilterChange({ ...filter, categoryFilter: e.target.value })}
         >
-          <option value="all">📂 {language === 'ar' ? 'جميع الفئات' : 'All Categories'}</option>
+          <option value="all">📂 {t.allCategories}</option>
           {categories.length > 0 && (
-            <option value="uncategorized">📁 {language === 'ar' ? 'بدون فئة' : 'Uncategorized'}</option>
+            <option value="uncategorized">📁 {t.uncategorized}</option>
           )}
           {categories.map((cat) => (
             <option key={cat} value={cat}>
@@ -264,9 +264,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 style={{ ...selectStyle, padding: '6px 12px', fontSize: '12px', color: '#c084fc' }}
               >
                 <option value="" disabled>
-                  📂 {language === 'ar' ? 'تعيين فئة...' : 'Assign Category...'}
+                  📂 {t.bulkAssignCat}...
                 </option>
-                <option value="__none__">🚫 {language === 'ar' ? 'إزالة الفئة' : 'Remove Category'}</option>
+                <option value="__none__">🚫 {t.uncategorized}</option>
                 {PREDEFINED_CATEGORIES.map((cat) => (
                   <option key={cat.id} value={cat.name}>
                     {cat.icon} {language === 'ar' ? cat.nameAr : cat.name}
