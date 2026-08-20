@@ -554,9 +554,9 @@ export const App: React.FC = () => {
             language={language}
           />
         ) : (
-          <div className="flex-1 flex flex-col w-full p-2">
+          <div className="flex-1 flex flex-col w-full px-6 sm:px-12 lg:px-16 py-6 space-y-4">
             {/* Filter & Multi-Select Toolbar + Channel List */}
-            <div className="flex-1 flex flex-col w-full rounded-xl overflow-hidden glass border border-slate-800">
+            <div className="flex-1 flex flex-col w-full rounded-2xl overflow-hidden glass border border-slate-800 shadow-2xl">
               <FilterBar
                 filter={filter}
                 onFilterChange={setFilter}
