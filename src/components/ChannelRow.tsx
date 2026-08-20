@@ -113,10 +113,10 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
       <div
         ref={dragRef}
         {...dragListeners}
-        className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-cyan-400 p-0.5 outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 rounded"
+        className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-cyan-400 p-1 outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 rounded"
         title="Drag to reorder channel position"
       >
-        <GripVertical className="w-4 h-4" />
+        <GripVertical className="w-5 h-5" />
       </div>
 
       {/* Select Checkbox */}
@@ -125,7 +125,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
         checked={isSelected}
         onChange={() => {}}
         onClick={(e) => onToggleSelect(channel.srvId, e)}
-        className="w-4 h-4 rounded border-slate-600 cursor-pointer"
+        className="w-4.5 h-4.5 rounded border-slate-600 cursor-pointer"
       />
 
       {/* Major Order # Badge */}
@@ -139,7 +139,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
             onBlur={handleSaveNumber}
             autoFocus
             min={1}
-            className="w-full max-w-[60px] bg-slate-800 text-cyan-400 font-mono font-bold text-sm px-1 py-0.5 rounded text-right focus:outline-none focus:ring-1 focus:ring-cyan-400"
+            className="w-full max-w-[60px] bg-slate-800 text-cyan-400 font-mono font-bold text-sm px-1.5 py-0.5 rounded text-right focus:outline-none focus:ring-1 focus:ring-cyan-400"
           />
         ) : (
           <div 
@@ -147,7 +147,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
               setEditNumber(channel.major.toString());
               setIsEditingNumber(true);
             }}
-            className="font-mono font-bold text-sm text-cyan-400 cursor-pointer hover:bg-slate-700/50 rounded px-1 py-0.5"
+            className="font-mono font-bold text-sm sm:text-base text-cyan-400 cursor-pointer hover:bg-slate-700/50 rounded px-1.5 py-0.5"
             title="Click to edit channel number"
           >
             #{channel.major}
@@ -158,10 +158,10 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
       {/* Type Icon */}
       <div className="text-slate-400 flex-shrink-0" title={channel.typeLabel}>
         {channel.srvType === 2 ? (
-          <Radio className="w-4 h-4 text-amber-400" />
+          <Radio className="w-5 h-5 text-amber-400" />
         ) : (
           <Tv
-            className={`w-4 h-4 ${
+            className={`w-5 h-5 ${
               channel.srvType === 25 ? 'text-cyan-400' : 'text-slate-400'
             }`}
           />
@@ -178,22 +178,22 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
               onChange={(e) => setEditName(e.target.value)}
               onKeyDown={handleKeyDown}
               autoFocus
-              className="rounded-lg px-2.5 py-1 text-sm w-full font-semibold focus:outline-none"
+              className="rounded-lg px-3 py-1.5 text-sm w-full font-semibold focus:outline-none"
             />
             <button
               onClick={handleSaveRename}
-              className="p-1 text-emerald-400 hover:text-emerald-300"
+              className="p-1.5 text-emerald-400 hover:text-emerald-300"
             >
-              <Check className="w-4 h-4" />
+              <Check className="w-4.5 h-4.5" />
             </button>
             <button
               onClick={() => {
                 setEditName(channel.srvName);
                 setIsEditing(false);
               }}
-              className="p-1 text-slate-400 hover:text-slate-200"
+              className="p-1.5 text-slate-400 hover:text-slate-200"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4.5 h-4.5" />
             </button>
           </div>
         ) : (
@@ -210,7 +210,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
               className="opacity-0 group-hover/name:opacity-100 p-1 text-slate-400 hover:text-cyan-400 transition-opacity"
               title="Click to rename"
             >
-              <Edit2 className="w-3.5 h-3.5" />
+              <Edit2 className="w-4 h-4" />
             </button>
 
             {/* Badges */}
@@ -236,7 +236,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
             {/* Category Badge / Quick assign */}
             {channel.category ? (
               <span
-                className="badge text-[10px] bg-purple-500/20 text-purple-300 border-purple-500/30 flex items-center gap-1 font-semibold cursor-pointer hover:bg-purple-500/30 transition-colors"
+                className="badge text-[11px] bg-purple-500/20 text-purple-300 border-purple-500/30 flex items-center gap-1.5 font-semibold cursor-pointer hover:bg-purple-500/30 transition-colors py-0.5 px-2"
                 title={`Assigned Category: ${channel.category} (Click to change)`}
                 onClick={() => {
                   if (onAssignCategory) {
@@ -245,7 +245,7 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
                   }
                 }}
               >
-                <span>{matchedPredef?.icon || '📁'}</span>
+                <span className="text-xs">{matchedPredef?.icon || '📁'}</span>
                 <span>{channel.category}</span>
               </span>
             ) : onAssignCategory ? (
@@ -254,10 +254,10 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
                   const cat = prompt('Assign category for this channel:');
                   if (cat && cat.trim()) onAssignCategory(channel.srvId, cat.trim());
                 }}
-                className="opacity-0 group-hover/name:opacity-100 p-0.5 text-[10px] text-slate-400 hover:text-purple-300 transition-opacity flex items-center gap-0.5 rounded px-1 hover:bg-purple-500/10"
+                className="opacity-0 group-hover/name:opacity-100 p-0.5 text-[10px] text-slate-400 hover:text-purple-300 transition-opacity flex items-center gap-0.5 rounded px-1.5 py-0.5 hover:bg-purple-500/10"
                 title="Assign category"
               >
-                <Tag className="w-3 h-3" />
+                <Tag className="w-3.5 h-3.5" />
                 <span>+Cat</span>
               </button>
             ) : null}
@@ -292,14 +292,14 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
               key={favNum}
               onClick={() => onToggleFavorite(channel.srvId, favNum)}
               title={isFav ? `Remove from Fav ${favNum}` : `Add to Fav ${favNum}`}
-              className={`p-1 rounded-md transition-colors ${
+              className={`p-1.5 rounded-lg transition-colors ${
                 isFav
                   ? 'text-amber-400 hover:text-amber-300'
                   : 'text-slate-400/40 hover:text-slate-400'
               }`}
             >
               <Star
-                className={`w-4 h-4 ${isFav ? 'fill-amber-400' : ''}`}
+                className={`w-5 h-5 ${isFav ? 'fill-amber-400' : ''}`}
               />
             </button>
           );
@@ -311,34 +311,34 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
         <button
           onClick={() => onToggleLock(channel.srvId)}
           title={channel.lockMode ? 'Locked with PIN (Click to unlock)' : 'Unlocked (Click to lock)'}
-          className={`p-2 rounded-lg transition-colors ${
+          className={`p-2 rounded-xl transition-colors ${
             channel.lockMode
               ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
           }`}
         >
-          {channel.lockMode ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+          {channel.lockMode ? <Lock className="w-4.5 h-4.5" /> : <Unlock className="w-4.5 h-4.5" />}
         </button>
 
         <button
           onClick={() => onToggleHidden(channel.srvId)}
           title={channel.hidden ? 'Hidden on TV (Click to show)' : 'Visible (Click to hide)'}
-          className={`p-2 rounded-lg transition-colors ${
+          className={`p-2 rounded-xl transition-colors ${
             channel.hidden
               ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
           }`}
         >
-          {channel.hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {channel.hidden ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
         </button>
 
         {/* Quick Move Button */}
         <button
           onClick={() => onQuickMove(channel)}
           title="Move to specific position number"
-          className="p-2 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+          className="p-2 rounded-xl text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
         >
-          <ArrowUpDown className="w-4 h-4" />
+          <ArrowUpDown className="w-4.5 h-4.5" />
         </button>
       </div>
     </div>

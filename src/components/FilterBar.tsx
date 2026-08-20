@@ -47,8 +47,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     backgroundColor: 'var(--bg-tertiary)',
     color: 'var(--text-primary)',
     border: '1px solid var(--border-color)',
-    borderRadius: '10px',
-    padding: '7px 12px',
+    borderRadius: '12px',
+    padding: '8px 14px',
     fontSize: '13px',
     fontWeight: 600,
     outline: 'none',
@@ -56,13 +56,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   } as React.CSSProperties;
 
   return (
-    <div className="p-4 sm:p-5 space-y-3 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+    <div className="p-5 sm:p-6 space-y-4 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
 
-      {/* ── Row 1: Full-width Search + Count ── */}
-      <div className="flex items-center gap-3">
-        {/* Search — takes all remaining space */}
+      {/* ── Row 1: Full-width Search with Generous Margin Top & Bottom ── */}
+      <div className="flex items-center gap-3.5 my-1 sm:my-2">
+        {/* Search Input Container */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+          <Search className="w-5 h-5 absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             value={filter.searchQuery}
@@ -73,21 +73,26 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               backgroundColor: 'var(--bg-input)',
               color: 'var(--text-primary)',
               border: '1px solid var(--border-color)',
-              borderRadius: '10px',
-              padding: '9px 36px',
+              borderRadius: '14px',
+              padding: '12px 44px',
               fontSize: '14px',
               fontWeight: 500,
               outline: 'none',
-              transition: 'border-color 0.2s',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
             }}
-            onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
-            onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--border-active)';
+              e.target.style.boxShadow = '0 0 0 3px rgba(76, 130, 251, 0.15)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--border-color)';
+              e.target.style.boxShadow = 'none';
+            }}
           />
           {filter.searchQuery && (
             <button
               onClick={() => onFilterChange({ ...filter, searchQuery: '' })}
-              className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 p-0.5"
-              style={{ color: 'var(--text-muted)' }}
+              className="absolute right-3.5 rtl:right-auto rtl:left-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -95,14 +100,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
 
         {/* Channel count */}
-        <span className="flex-shrink-0 text-sm font-mono whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
+        <span className="flex-shrink-0 text-sm sm:text-base font-mono whitespace-nowrap px-3 py-2 rounded-xl bg-slate-900/60 border border-slate-800" style={{ color: 'var(--text-secondary)' }}>
           <span className="text-cyan-400 font-bold">{totalFilteredCount}</span>
           <span> / {totalCount}</span>
         </span>
       </div>
 
       {/* ── Row 2: Filter chips ── */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2.5 pt-1">
         {/* Type pill group */}
         <div
           className="flex items-center rounded-xl p-0.5 gap-0.5 flex-shrink-0"
@@ -112,7 +117,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <button
               key={type}
               onClick={() => onFilterChange({ ...filter, typeFilter: type })}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all"
               style={
                 filter.typeFilter === type
                   ? { background: 'var(--accent-blue)', color: '#fff' }
@@ -193,12 +198,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {/* ── Row 3: Bulk actions (only when items selected) ── */}
       {selectedCount > 0 && (
         <div
-          className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl animate-fade-in"
+          className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl animate-fade-in"
           style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}
         >
           <div className="flex items-center gap-2.5">
             <span
-              className="px-2.5 py-1 rounded-lg text-xs font-bold"
+              className="px-3 py-1 rounded-lg text-xs font-bold"
               style={{ background: 'rgba(59,130,246,0.18)', color: '#67e8f9', border: '1px solid rgba(59,130,246,0.3)' }}
             >
               {selectedCount} {t.selectedCount}
@@ -211,29 +216,29 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center flex-wrap gap-1.5">
-            <button onClick={onBulkMove} className="btn btn-secondary btn-sm text-cyan-400 border-cyan-500/30">
-              <ArrowUpDown className="w-3.5 h-3.5" />
+          <div className="flex items-center flex-wrap gap-2">
+            <button onClick={onBulkMove} className="btn btn-secondary btn-sm text-cyan-400 border-cyan-500/30 gap-1.5">
+              <ArrowUpDown className="w-4 h-4" />
               <span>{t.bulkMove}</span>
             </button>
-            <button onClick={() => onBulkLock(true)} className="btn btn-secondary btn-sm">
-              <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <button onClick={() => onBulkLock(true)} className="btn btn-secondary btn-sm gap-1.5">
+              <Lock className="w-4 h-4 text-amber-400" />
               <span className="hidden sm:inline">{t.bulkLock}</span>
             </button>
             <button onClick={() => onBulkLock(false)} className="btn btn-secondary btn-sm">
-              <Unlock className="w-3.5 h-3.5 text-slate-400" />
+              <Unlock className="w-4 h-4 text-slate-400" />
             </button>
-            <button onClick={() => onBulkHide(true)} className="btn btn-secondary btn-sm">
-              <EyeOff className="w-3.5 h-3.5 text-rose-400" />
+            <button onClick={() => onBulkHide(true)} className="btn btn-secondary btn-sm gap-1.5">
+              <EyeOff className="w-4 h-4 text-rose-400" />
               <span className="hidden sm:inline">{t.bulkHide}</span>
             </button>
             <button onClick={() => onBulkHide(false)} className="btn btn-secondary btn-sm">
-              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <Eye className="w-4 h-4 text-emerald-400" />
             </button>
             <select
               onChange={(e) => { if (e.target.value) { onBulkFavorite(Number(e.target.value)); e.target.value = ''; } }}
               defaultValue=""
-              style={{ ...selectStyle, padding: '5px 10px', fontSize: '12px', color: 'var(--accent-amber)' }}
+              style={{ ...selectStyle, padding: '6px 12px', fontSize: '12px', color: 'var(--accent-amber)' }}
             >
               <option value="" disabled>⭐ {t.bulkFav}…</option>
               {[1,2,3,4,5].map((n) => <option key={n} value={n}>⭐ Add to Fav {n}</option>)}
@@ -249,7 +254,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   }
                 }}
                 defaultValue=""
-                style={{ ...selectStyle, padding: '5px 10px', fontSize: '12px', color: '#c084fc' }}
+                style={{ ...selectStyle, padding: '6px 12px', fontSize: '12px', color: '#c084fc' }}
               >
                 <option value="" disabled>
                   📂 {language === 'ar' ? 'تعيين فئة...' : 'Assign Category...'}
