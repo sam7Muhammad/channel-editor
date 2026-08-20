@@ -687,11 +687,11 @@ export const App: React.FC = () => {
         language={language}
       />
 
-      {/* ── Floating Export Reminder Toast (Option 1) ── */}
+      {/* ── Floating Export Reminder Toast (Option 1 - Bottom Center) ── */}
       {showExportReminder && channels.length > 0 && (
         <aside
           aria-label="Export notification"
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-4 p-4 rounded-2xl bg-slate-900/95 border border-cyan-500/40 shadow-2xl shadow-cyan-950/60 backdrop-blur-xl animate-fade-in max-w-md ring-1 ring-cyan-500/20"
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-5 py-3.5 rounded-2xl bg-slate-900/95 border border-cyan-500/40 shadow-2xl shadow-cyan-950/80 backdrop-blur-xl animate-fade-in max-w-lg w-auto ring-1 ring-cyan-500/25"
         >
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30 flex-shrink-0">
             <Sparkles className="w-5 h-5" />
