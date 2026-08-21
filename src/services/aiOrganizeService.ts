@@ -154,7 +154,7 @@ Return strictly valid JSON matching:
 
     const promptText = (opts.customPrompt || '').trim();
     const promptLower = promptText.toLowerCase();
-    const isArabic = /[\u0600-\u06FF]/.test(promptText);
+    const isArabic = opts.language === 'ar' || /[\u0600-\u06FF]/.test(promptText);
 
     const junkSrvIds: string[] = [];
     const duplicateGroups: AIOrganizeResult['duplicateGroups'] = [];
@@ -368,13 +368,13 @@ Return strictly valid JSON matching:
 
     // Build categories array
     const defaultCategories: AIOrganizeResult['categories'] = configuredCategories.map((r) => ({
-      categoryName: r.name,
+      categoryName: isArabic ? (r.nameAr || r.name) : r.name,
       categoryIcon: r.icon,
       srvIds: categoryBuckets.get(r.name) || [],
     }));
 
     defaultCategories.push({
-      categoryName: 'Regional & General',
+      categoryName: isArabic ? 'قنوات عامة وإقليمية' : 'Regional & General',
       categoryIcon: '📺',
       srvIds: categoryBuckets.get('Regional & General') || [],
     });
@@ -407,12 +407,12 @@ Return strictly valid JSON matching:
         parts.push(`✅ تم إنشاء فئة "${customCategoryCreatedName}" في المقدمة (#1) وتضم ${customCategoryChannelsCount} قناة مطابقة.`);
       }
       if (duplicateHiddenIds.size > 0) {
-        parts.push(`🔄 تم حل ${duplicateHiddenIds.size} تردد مكرر والإبقاء على التردد الأعلى إشارة.`);
+        parts.push(`🔄 تم حل ${duplicateHiddenIds.size} تردداً مكرراً مع إبقاء أفضل جودة إشارة.`);
       }
       if (junkSrvIds.length > 0) {
-        parts.push(`🧹 تم تنظيف ${junkSrvIds.length} قناة تجريبية ومغلقة.`);
+        parts.push(`🧹 تم تنظيف ${junkSrvIds.length} قناة تجريبية أو وهمية.`);
       }
-      parts.push(`📂 تم ترتيب باقي القنوات في ${mergedCategories.length} فئات منتظمة.`);
+      parts.push(`📁 تم ترتيب القنوات في ${mergedCategories.length} فئات رئيسية.`);
       aiResponse = parts.join(' ');
     } else {
       const parts: string[] = [];

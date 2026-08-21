@@ -40,6 +40,7 @@ export interface AIOrganizeOptions {
   customPrompt: string;
   engineMode: 'ai' | 'local';
   activeCategories?: CategoryDefinition[];
+  language?: 'en' | 'ar';
 }
 
 interface AIOrganizeModalProps {
@@ -223,6 +224,7 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
         {
           ...options,
           activeCategories: categoryList.filter((c) => c.enabled),
+          language,
         },
         apiKey,
         (msg: string, pct: number) => {
@@ -251,12 +253,24 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
       }
 
       if (options.organizeCategories) {
+        // Map category names to active language
+        const catMap = new Map<string, string>();
+        PREDEFINED_CATEGORIES.forEach((pc) => {
+          catMap.set(pc.name.toLowerCase().trim(), language === 'ar' ? pc.nameAr : pc.name);
+          catMap.set(pc.nameAr.toLowerCase().trim(), language === 'ar' ? pc.nameAr : pc.name);
+        });
+        catMap.set('regional & general', language === 'ar' ? 'قنوات عامة وإقليمية' : 'Regional & General');
+        catMap.set('قنوات عامة وإقليمية', language === 'ar' ? 'قنوات عامة وإقليمية' : 'Regional & General');
+
         setCategoriesOrder(
-          (results.categories || []).map((c) => ({
-            categoryName: c.categoryName,
-            categoryIcon: c.categoryIcon,
-            srvIds: c.srvIds || [],
-          }))
+          (results.categories || []).map((c) => {
+            const mappedName = catMap.get(c.categoryName.toLowerCase().trim()) || c.categoryName;
+            return {
+              categoryName: mappedName,
+              categoryIcon: c.categoryIcon,
+              srvIds: c.srvIds || [],
+            };
+          })
         );
       } else {
         setCategoriesOrder([]);
@@ -313,14 +327,14 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
                   {aim.title}
                 </h2>
                 {apiKey && apiKey.trim() !== '' ? (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 flex items-center gap-1 shadow-sm">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold border border-purple-500/30 flex items-center gap-1 shadow-sm">
                     <Sparkles className="w-3 h-3" />
-                    Gemini API Active
+                    {language === 'ar' ? 'ذكاء Gemini مفعّل' : 'Gemini API Active'}
                   </span>
                 ) : (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 flex items-center gap-1 shadow-sm">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30 flex items-center gap-1 shadow-sm">
                     <Zap className="w-3 h-3" />
-                    Local Fast Engine
+                    {language === 'ar' ? 'المحرك المحلي السريع' : 'Local Fast Engine'}
                   </span>
                 )}
               </div>
