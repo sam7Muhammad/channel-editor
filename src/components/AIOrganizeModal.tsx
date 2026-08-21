@@ -73,9 +73,9 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
   const [step, setStep] = useState<'options' | 'analyzing' | 'review'>('options');
 
   // Active Category list & Selected Preset
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('english_first');
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('nilesat_standard');
   const [categoryList, setCategoryList] = useState<CategoryDefinition[]>(() => {
-    const preset = CATEGORY_PRESETS.find((p) => p.id === 'english_first');
+    const preset = CATEGORY_PRESETS.find((p) => p.id === 'nilesat_standard');
     if (!preset) return PREDEFINED_CATEGORIES;
     const map = new Map(PREDEFINED_CATEGORIES.map((c) => [c.id, c]));
     const ordered: CategoryDefinition[] = [];
