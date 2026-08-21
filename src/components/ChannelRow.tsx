@@ -12,11 +12,9 @@ import {
   Radio,
   Tv,
   ArrowUpDown,
-  Tag,
 } from 'lucide-react';
 import { Channel } from '../types/channel';
 import { formatFrequency } from '../utils/samsungEncoder';
-import { PREDEFINED_CATEGORIES } from '../types/category';
 
 interface ChannelRowProps {
   channel: Channel;
@@ -93,10 +91,6 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
   if (channel.sigQa >= 70 && channel.bitErr === 0) signalClass = 'signal-great';
   else if (channel.sigQa < 40 || channel.bitErr > 200) signalClass = 'signal-poor';
   else if (channel.sigQa < 55) signalClass = 'signal-mid';
-
-  const matchedPredef = PREDEFINED_CATEGORIES.find(
-    (c) => c.name.toLowerCase() === (channel.category || '').toLowerCase()
-  );
 
   return (
     <div
@@ -207,42 +201,11 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
 
             <button
               onClick={() => setIsEditing(true)}
-              className="opacity-0 group-hover/name:opacity-100 p-1 text-slate-400 hover:text-cyan-400 transition-opacity"
+              className="opacity-0 group-hover/name:opacity-100 p-1 text-slate-400 hover:text-cyan-400 transition-opacity cursor-pointer"
               title="Click to rename"
             >
               <Edit2 className="w-4 h-4" />
             </button>
-
-
-
-            {/* Category Badge / Quick assign */}
-            {channel.category ? (
-              <span
-                className="badge text-[11px] bg-purple-500/20 text-purple-300 border-purple-500/30 flex items-center gap-1.5 font-semibold cursor-pointer hover:bg-purple-500/30 transition-colors py-0.5 px-2"
-                title={`Assigned Category: ${channel.category} (Click to change)`}
-                onClick={() => {
-                  if (onAssignCategory) {
-                    const nextCat = prompt('Change category for this channel:', channel.category);
-                    if (nextCat !== null) onAssignCategory(channel.srvId, nextCat.trim());
-                  }
-                }}
-              >
-                <span className="text-xs">{matchedPredef?.icon || '📁'}</span>
-                <span>{channel.category}</span>
-              </span>
-            ) : onAssignCategory ? (
-              <button
-                onClick={() => {
-                  const cat = prompt('Assign category for this channel:');
-                  if (cat && cat.trim()) onAssignCategory(channel.srvId, cat.trim());
-                }}
-                className="opacity-0 group-hover/name:opacity-100 p-0.5 text-[10px] text-slate-400 hover:text-purple-300 transition-opacity flex items-center gap-0.5 rounded px-1.5 py-0.5 hover:bg-purple-500/10"
-                title="Assign category"
-              >
-                <Tag className="w-3.5 h-3.5" />
-                <span>+Cat</span>
-              </button>
-            ) : null}
           </div>
         )}
       </div>
