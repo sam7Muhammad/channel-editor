@@ -32,23 +32,29 @@
 }
 
 [data-theme='light'] {
-  /* Crisp Modern Light Palette */
-  --bg-page: #F8FAFC;
-  --bg-primary: #F8FAFC;
+  /* Mediterranean Sky & Crisp White Palette (Inspired by Roman Holiday UI) */
+  --bg-page: #8CD6EA;
+  --bg-primary: #8CD6EA;
   --bg-secondary: #FFFFFF;
-  --bg-tertiary: #F1F5F9;
+  --bg-tertiary: #EAF7FA;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F8FAFC;
+  --bg-card-hover: #F2FAFC;
   --bg-input: #FFFFFF;
   
-  --border-color: #E2E8F0;
-  --border-hover: #CBD5E1;
-  --border-active: #2563EB;
+  --border-color: #B4E6F2;
+  --border-hover: #72CBE0;
+  --border-active: #103450;
 
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #64748B;
-  --accent-blue: #2563EB;
+  --text-primary: #0C283F;
+  --text-secondary: #2B5270;
+  --text-muted: #5B84A0;
+
+  --accent-blue: #103450;
+  --accent-cyan: #0284C7;
+  --accent-emerald: #15803D;
+  --accent-amber: #C2410C;
+  --accent-rose: #BE123C;
+  --accent-purple: #6D28D9;
 }
 
 *, *::before, *::after {
@@ -116,13 +122,19 @@ body[dir="rtl"] {
 .step-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 32px 28px;
   min-width: 0;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+[data-theme='light'] .step-card {
+  background: #FFFFFF;
+  border-color: #B4E6F2;
+  box-shadow: 0 6px 24px -4px rgba(12, 40, 63, 0.08);
 }
 
 .step-card.main {
@@ -130,6 +142,12 @@ body[dir="rtl"] {
   background: var(--bg-card);
   box-shadow: 0 10px 40px -10px rgba(76, 130, 251, 0.18);
   padding: 36px 32px;
+}
+
+[data-theme='light'] .step-card.main {
+  background: #FFFFFF;
+  border-color: #103450;
+  box-shadow: 0 12px 36px -8px rgba(16, 52, 80, 0.14);
 }
 
 /* Badges */
@@ -252,6 +270,16 @@ body[dir="rtl"] {
 .clean-dropzone:hover {
   border-color: var(--accent-blue);
   background: rgba(76, 130, 251, 0.05);
+}
+
+[data-theme='light'] .clean-dropzone {
+  background: #F4FAFC;
+  border-color: #72CBE0;
+}
+
+[data-theme='light'] .clean-dropzone:hover {
+  background: #E8F6FA;
+  border-color: #103450;
 }
 
 .clean-browse-btn {

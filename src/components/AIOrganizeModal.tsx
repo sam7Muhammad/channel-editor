@@ -16,6 +16,7 @@ import {
   ArrowDown,
   Plus,
   Sliders,
+  SlidersHorizontal,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -303,8 +304,8 @@ export const AIOrganizeModal: React.FC<AIOrganizeModalProps> = ({
           }}
         >
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 flex-shrink-0">
-              <Sparkles className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/25 flex-shrink-0">
+              <SlidersHorizontal className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-0.5">

@@ -213,22 +213,22 @@ export const ChannelRow: React.FC<ChannelRowProps> = ({
               <Edit2 className="w-4 h-4" />
             </button>
 
-            {/* Badges */}
+            {/* Badges (Hidden on narrow/medium screens for clean presentation) */}
             {channel.srvType === 25 && (
-              <span className="badge badge-hd text-[10px]">HD</span>
+              <span className="badge badge-hd text-[10px] hidden lg:inline-flex">HD</span>
             )}
             {channel.scrambled && (
-              <span className="badge badge-scrambled text-[10px]" title="Encrypted Stream">
+              <span className="badge badge-scrambled text-[10px] hidden lg:inline-flex" title="Encrypted Stream">
                 🔐 PAY
               </span>
             )}
             {channel.isDuplicate && (
-              <span className="badge badge-fav text-[10px]" title="Same channel on multiple frequencies">
+              <span className="badge badge-fav text-[10px] hidden lg:inline-flex" title="Same channel on multiple frequencies">
                 DUPE
               </span>
             )}
             {channel.isJunk && (
-              <span className="badge text-[10px] bg-rose-500/20 text-rose-300 border-rose-500/30" title="Detected as test or placeholder feed">
+              <span className="badge text-[10px] bg-rose-500/20 text-rose-300 border-rose-500/30 hidden lg:inline-flex" title="Detected as test or placeholder feed">
                 TEST
               </span>
             )}

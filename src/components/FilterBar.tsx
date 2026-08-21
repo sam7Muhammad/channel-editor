@@ -62,7 +62,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <div className="flex items-center gap-3.5 my-1 sm:my-2">
         {/* Search Input Container */}
         <div className="relative flex-1">
-          <Search className="w-5 h-5 absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+          <Search className="w-5 h-5 absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white" />
           <input
             type="text"
             value={filter.searchQuery}
@@ -181,9 +181,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           value={filter.favoriteFilter}
           onChange={(e) => onFilterChange({ ...filter, favoriteFilter: e.target.value === 'all' ? 'all' : Number(e.target.value) })}
         >
-          <option value="all">⭐ All Favorites</option>
+          <option value="all">⭐ {t.allFavorites}</option>
           {[1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>⭐ Fav {n}</option>
+            <option key={n} value={n}>⭐ {t.favoritesModal.favTab} {n}</option>
           ))}
         </select>
 
@@ -194,7 +194,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={filter.satelliteId}
             onChange={(e) => onFilterChange({ ...filter, satelliteId: e.target.value === 'all' ? 'all' : Number(e.target.value) })}
           >
-            <option value="all">🛰️ All Satellites</option>
+            <option value="all">🛰️ {t.allSatellites}</option>
             {satellites.map((s) => (
               <option key={s.satId} value={s.satId}>🛰️ {s.satName}</option>
             ))}
@@ -217,9 +217,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </span>
             <button
               onClick={allSelected ? onDeselectAll : onSelectAll}
-              className="text-xs font-semibold text-cyan-400 hover:underline"
+              className="text-xs font-semibold text-cyan-400 hover:underline cursor-pointer"
             >
-              {allSelected ? 'Deselect All' : 'Select All Filtered'}
+              {allSelected ? t.deselectAll : t.selectAll}
             </button>
           </div>
 

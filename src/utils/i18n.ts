@@ -1,14 +1,14 @@
 export const translations = {
   en: {
     // ── Global / Header / Navigation ──
-    appTitle: 'Samsung TV Channel Editor',
-    appSubtitle: 'Cross-Platform Channel Organizer & AI Cleaner for Tizen TV',
+    appTitle: 'Channel Editor',
+    appSubtitle: 'Cross-Platform Channel Organizer & Cleaner for Tizen TV',
     loadNewFile: 'Load New File',
     returnHomeTooltip: 'Return to Home / Upload page',
     unsavedWarning: 'You have unsaved channel changes. Are you sure you want to exit to home?',
     helpAlert: 'Export your channel list from your TV via USB, upload it here to reorder and clean duplicates, then save it back to USB.',
     exportToUsb: 'Export for TV USB',
-    aiOrganize: '✨ AI Smart Organize',
+    aiOrganize: 'Auto Organize',
     favorites: 'Favorites',
     settings: 'Settings',
     undo: 'Undo Last Action',
@@ -210,14 +210,14 @@ export const translations = {
 
   ar: {
     // ── Global / Header / Navigation ──
-    appTitle: 'محرر قنوات تلفزيون سامسونج',
-    appSubtitle: 'أداة تنظيم القنوات والذكاء الاصطناعي الذكي لجميع الأنظمة',
+    appTitle: 'محرر القنوات',
+    appSubtitle: 'أداة تنظيم القنوات والترتيب التلقائي الذكي لجميع الأنظمة',
     loadNewFile: 'فتح ملف جديد',
     returnHomeTooltip: 'العودة للصفحة الرئيسية',
     unsavedWarning: 'لديك تعديلات غير محفوظة على القنوات. هل أنت متأكد من الخروج للرئيسية؟',
     helpAlert: 'قم بتصدير ملف القنوات من الشاشة عبر الفلاشة، ارفعه هنا لترتيبه، ثم أعد تصديره واستيراده على التلفزيون.',
     exportToUsb: 'تصدير لفلاشة USB',
-    aiOrganize: '✨ تنظيم ذكي بالذكاء الاصطناعي',
+    aiOrganize: 'ترتيب تلقائي',
     favorites: 'المفضلة',
     settings: 'الإعدادات',
     undo: 'تراجع عن آخر إجراء',

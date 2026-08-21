@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Tv, Sparkles, Download, Star, Settings, RotateCcw, Moon, Sun, Languages, FolderOpen, HelpCircle } from 'lucide-react';
+import { Tv, SlidersHorizontal, Download, Star, Settings, RotateCcw, Moon, Sun, Languages, FolderOpen, HelpCircle } from 'lucide-react';
 import { MetadataInfo } from '../types/channel';
 import { translations } from '../utils/i18n';
 
@@ -80,14 +80,14 @@ export const Header: React.FC<HeaderProps> = ({
 
         <div className="flex items-center gap-2">
           <span className="font-bold text-base sm:text-lg tracking-tight group-hover:text-cyan-400 transition-colors" style={{ color: 'var(--text-primary)' }}>
-            Channel editor
+            {t.appTitle}
           </span>
 
           {filename && (
             <div className="hidden sm:flex items-center gap-2 text-xs font-mono pl-2 ml-2 border-l" style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
               <span className="text-cyan-400 font-semibold truncate max-w-[220px]">{filename}</span>
               <span>•</span>
-              <span className="text-emerald-400 font-bold">{channelCount} {t.uploader.dropSubtitle.includes('قناة') ? 'قناة' : 'channels'}</span>
+              <span className="text-emerald-400 font-bold">{channelCount} {language === 'ar' ? 'قناة' : 'channels'}</span>
             </div>
           )}
         </div>
@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2 mr-2">
             <button
               onClick={handleBrowseClick}
-              className="btn btn-secondary btn-sm gap-2 font-semibold"
+              className="btn btn-secondary btn-sm gap-2 font-semibold cursor-pointer"
               title={t.loadNewFile}
             >
               <FolderOpen className="w-4 h-4 text-cyan-400" />
@@ -109,23 +109,23 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {canUndo && (
-              <button onClick={onUndo} title={t.undo} className="btn btn-secondary btn-sm">
+              <button onClick={onUndo} title={t.undo} className="btn btn-secondary btn-sm cursor-pointer">
                 <RotateCcw className="w-4 h-4 text-amber-400" />
                 <span className="hidden sm:inline">{t.undo}</span>
               </button>
             )}
 
-            <button onClick={onOpenAiOrganize} className="btn btn-ai btn-sm font-bold shadow-sm flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4" />
+            <button onClick={onOpenAiOrganize} className="btn btn-primary btn-sm font-bold shadow-sm flex items-center gap-1.5 cursor-pointer">
+              <SlidersHorizontal className="w-4 h-4" />
               <span>{t.aiOrganize}</span>
             </button>
 
-            <button onClick={onOpenFavorites} className="btn btn-secondary btn-sm flex items-center gap-1.5">
+            <button onClick={onOpenFavorites} className="btn btn-secondary btn-sm flex items-center gap-1.5 cursor-pointer">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400/20" />
               <span className="hidden md:inline">{t.favorites}</span>
             </button>
 
-            <button onClick={onExport} className="btn btn-primary btn-sm font-bold flex items-center gap-1.5">
+            <button onClick={onExport} className="btn btn-primary btn-sm font-bold flex items-center gap-1.5 cursor-pointer">
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">{t.exportToUsb}</span>
             </button>
