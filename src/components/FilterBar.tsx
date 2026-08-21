@@ -62,7 +62,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <div className="flex items-center gap-3.5 my-1 sm:my-2">
         {/* Search Input Container */}
         <div className="relative flex-1">
-          <Search className="w-5 h-5 absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white" />
+          <Search className="w-5 h-5 absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-300" />
           <input
             type="text"
             value={filter.searchQuery}

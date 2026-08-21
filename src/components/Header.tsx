@@ -84,10 +84,20 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
 
           {filename && (
-            <div className="hidden sm:flex items-center gap-2 text-xs font-mono pl-2 ml-2 border-l" style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
-              <span className="text-cyan-400 font-semibold truncate max-w-[220px]">{filename}</span>
-              <span>•</span>
-              <span className="text-emerald-400 font-bold">{channelCount} {language === 'ar' ? 'قناة' : 'channels'}</span>
+            <div
+              className="hidden sm:flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-xl border shadow-sm"
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                borderColor: 'var(--border-color)',
+              }}
+            >
+              <span className="font-bold truncate max-w-[220px]" style={{ color: 'var(--text-primary)' }}>
+                {filename}
+              </span>
+              <span style={{ color: 'var(--text-muted)' }}>•</span>
+              <span className="font-bold text-cyan-600 dark:text-cyan-400">
+                {channelCount} {language === 'ar' ? 'قناة' : 'channels'}
+              </span>
             </div>
           )}
         </div>
